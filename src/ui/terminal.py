@@ -1,6 +1,7 @@
 """Terminal UI controller for the Playa Nickname Booth."""
 
 from enum import Enum, auto
+from typing import Optional
 
 from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
@@ -25,13 +26,14 @@ class State(Enum):
 class Terminal:
     """Terminal UI controller managing the application flow."""
 
-    def __init__(self):
+    def __init__(self, prefill_answers: Optional[list[str]] = None):
         self.console = Console()
         self.state = State.START
         self.style = DEFAULT_STYLE
         self.qa_transcript: list[dict] = []
         self.avoid_list: list[str] = []
         self.candidates: list[str] = []
+        self.prefill_answers = prefill_answers
 
     def clear(self):
         """Clear the terminal screen."""
@@ -76,7 +78,9 @@ class Terminal:
     def run_questionnaire(self):
         """Run the questionnaire flow."""
         self.clear()
-        self.qa_transcript = ask_questions(self.console, QUESTIONS)
+        self.qa_transcript = ask_questions(
+            self.console, QUESTIONS, prefill_answers=self.prefill_answers
+        )
         self.state = State.GENERATING
 
     def show_generating(self):
@@ -106,6 +110,10 @@ class Terminal:
 
     def run(self):
         """Main application loop."""
+        # Skip to questionnaire if prefill answers provided
+        if self.prefill_answers:
+            self.state = State.QUESTIONNAIRE
+
         try:
             while True:
                 if self.state == State.START:
