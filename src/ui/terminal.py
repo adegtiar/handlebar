@@ -2,9 +2,9 @@
 
 from enum import Enum, auto
 
+from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt
 
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
@@ -50,7 +50,7 @@ class Terminal:
             )
         )
         self.console.print()
-        Prompt.ask("[dim]Press Enter to begin[/dim]", default="", show_default=False)
+        pt_prompt("Press Enter to begin: ")
         self.state = State.STYLE_SELECT
 
     def show_style_selector(self):
@@ -65,12 +65,11 @@ class Terminal:
             )
 
         self.console.print()
-        choice = Prompt.ask(
-            "Style",
-            choices=list(STYLES.keys()),
-            default=DEFAULT_STYLE,
-            show_choices=False,
-        )
+        while True:
+            choice = pt_prompt(f"Style [{DEFAULT_STYLE}]: ") or DEFAULT_STYLE
+            if choice in STYLES:
+                break
+            self.console.print(f"[red]Invalid choice. Use: {', '.join(STYLES.keys())}[/red]")
         self.style = choice
         self.state = State.QUESTIONNAIRE
 
@@ -102,7 +101,7 @@ class Terminal:
 
         self.console.print(f"\n[dim]Style: {STYLES[self.style]['name']}[/dim]")
         self.console.print()
-        Prompt.ask("[dim]Press Enter to return to start[/dim]", default="", show_default=False)
+        pt_prompt("Press Enter to return to start: ")
         self.state = State.START
 
     def run(self):

@@ -14,7 +14,7 @@ def test_ask_questions_returns_qa_format():
         {"question": "Test question?", "hint": "hint"},
     ]
 
-    with patch("ui.questionnaire.Prompt.ask", return_value="test answer"):
+    with patch("ui.questionnaire.pt_prompt", return_value="test answer"):
         result = ask_questions(console, questions)
 
     assert len(result) == 1
@@ -30,7 +30,7 @@ def test_ask_questions_handles_blank_answers():
         {"question": "Question 2?", "hint": "hint"},
     ]
 
-    with patch("ui.questionnaire.Prompt.ask", return_value=""):
+    with patch("ui.questionnaire.pt_prompt", return_value=""):
         result = ask_questions(console, questions)
 
     assert result[0]["a"] == ""
@@ -45,7 +45,7 @@ def test_ask_questions_processes_all_questions():
         for i in range(5)
     ]
 
-    with patch("ui.questionnaire.Prompt.ask", return_value="answer"):
+    with patch("ui.questionnaire.pt_prompt", return_value="answer"):
         result = ask_questions(console, questions)
 
     assert len(result) == 5
@@ -58,7 +58,7 @@ def test_ask_questions_displays_question_text():
         {"question": "What is your vibe?", "hint": "e.g., chill"},
     ]
 
-    with patch("ui.questionnaire.Prompt.ask", return_value="cool"):
+    with patch("ui.questionnaire.pt_prompt", return_value="cool"):
         ask_questions(console, questions)
 
     output = console.export_text()

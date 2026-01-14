@@ -40,7 +40,7 @@ def test_show_start_screen_transitions_to_style_select():
     terminal = Terminal()
     terminal.console = Console(record=True)
 
-    with patch("ui.terminal.Prompt.ask", return_value=""):
+    with patch("ui.terminal.pt_prompt", return_value=""):
         terminal.show_start_screen()
 
     assert terminal.state == State.STYLE_SELECT
@@ -52,7 +52,7 @@ def test_show_style_selector_transitions_to_questionnaire():
     terminal.console = Console(record=True)
     terminal.state = State.STYLE_SELECT
 
-    with patch("ui.terminal.Prompt.ask", return_value="m"):
+    with patch("ui.terminal.pt_prompt", return_value="m"):
         terminal.show_style_selector()
 
     assert terminal.state == State.QUESTIONNAIRE
@@ -79,7 +79,7 @@ def test_show_generating_transitions_to_start():
     terminal.state = State.GENERATING
     terminal.qa_transcript = [{"q": "Q?", "a": "A"}]
 
-    with patch("ui.terminal.Prompt.ask", return_value=""):
+    with patch("ui.terminal.pt_prompt", return_value=""):
         terminal.show_generating()
 
     assert terminal.state == State.START

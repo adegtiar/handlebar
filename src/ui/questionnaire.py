@@ -1,8 +1,8 @@
 """Questionnaire logic for collecting user answers."""
 
+from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
 from rich.panel import Panel
-from rich.prompt import Prompt
 
 
 def ask_questions(console: Console, questions: list[dict]) -> list[dict]:
@@ -38,7 +38,7 @@ def ask_questions(console: Console, questions: list[dict]) -> list[dict]:
         if hint:
             console.print(f"[dim italic]{hint}[/dim italic]")
 
-        answer = Prompt.ask("[green]>[/green]", default="", show_default=False)
+        answer = pt_prompt("> ")
 
         qa_transcript.append({"q": question_text, "a": answer})
         console.print()
