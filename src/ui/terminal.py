@@ -1,12 +1,15 @@
 """Terminal UI controller for the Playa Nickname Booth."""
 
+import json
 from enum import Enum, auto
 from typing import Optional
 
 from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
 from rich.panel import Panel
+from rich.syntax import Syntax
 
+from core.prompt import build_prompt
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
 from ui.questionnaire import ask_questions
@@ -90,20 +93,34 @@ class Terminal:
         self.console.print(
             Panel(
                 "[bold yellow]Generating your playa names...[/bold yellow]\n\n"
-                "[dim]LLM client not yet implemented.[/dim]\n"
-                "[dim]Q/A transcript collected:[/dim]",
+                "[dim]LLM client not yet implemented.[/dim]",
                 border_style="yellow",
             )
         )
         self.console.print()
 
-        for qa in self.qa_transcript:
-            if qa["a"]:
-                self.console.print(f"[cyan]Q:[/cyan] {qa['q']}")
-                self.console.print(f"[green]A:[/green] {qa['a']}")
-                self.console.print()
+        # Build and display the prompt
+        prompt_messages = build_prompt(
+            self.qa_transcript, self.style, self.avoid_list or None
+        )
 
-        self.console.print(f"\n[dim]Style: {STYLES[self.style]['name']}[/dim]")
+        self.console.print("[bold]Prompt that would be sent to LLM:[/bold]\n")
+
+        # Pretty print each message
+        for msg in prompt_messages:
+            self.console.print(f"[bold cyan]{msg['role'].upper()}:[/bold cyan]")
+
+            # Try to parse content as JSON for prettier display
+            try:
+                content_obj = json.loads(msg["content"])
+                content_json = json.dumps(content_obj, indent=2)
+                self.console.print(Syntax(content_json, "json", theme="monokai", word_wrap=True))
+            except (json.JSONDecodeError, TypeError):
+                # Plain text content - display as-is with word wrap
+                self.console.print(msg["content"])
+
+            self.console.print()
+
         self.console.print()
         pt_prompt("Press Enter to return to start: ")
         self.state = State.START
