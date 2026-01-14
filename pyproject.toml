@@ -1,0 +1,11 @@
+[project]
+name = "handlebar"
+version = "0.1.0"
+description = "Playa Nickname Booth - Terminal-based nickname generator"
+requires-python = ">=3.11"
+dependencies = [
+    "rich>=13.0.0",
+]
+
+[project.scripts]
+handlebar = "main:main"
