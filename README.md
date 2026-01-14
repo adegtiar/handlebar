@@ -5,11 +5,19 @@ Terminal-based playa name generator.
 ## Install
 
 ```bash
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -e .
 ```
 
 ## Run
 
+```bash
+handlebar
+```
+
+If you have dependencies installed already and don't want to use venv, you can
+also simply run:
 ```bash
 ./src/main.py
 ```
