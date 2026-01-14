@@ -14,6 +14,12 @@ pip install -e .
 ./src/main.py
 ```
 
+## Test
+
+```bash
+pytest
+```
+
 ## Usage
 
 1. Press Enter to start
