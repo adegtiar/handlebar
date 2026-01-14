@@ -18,7 +18,7 @@ QUESTIONS = [
         "hint": "e.g., Warm breeze before a storm",
     },
     {
-        "question": "Optional: Tell a 10-second story that happened today",
+        "question": "Optional: Tell a 10-second story that happened recently",
         "hint": "e.g., I found a lost cat and brought it to the shelter",
     },
 ]

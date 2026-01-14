@@ -61,7 +61,7 @@ class Terminal:
 
         for key, style in STYLES.items():
             self.console.print(
-                f"  [bold cyan][{key}][/bold cyan] {style['name'].title()} - [dim]{style['description']}[/dim]"
+                f"  [bold cyan]\\[{key}][/bold cyan] {style['name'].title()} - [dim]{style['description']}[/dim]"
             )
 
         self.console.print()
