@@ -10,6 +10,10 @@ source .venv/bin/activate
 pip install -e .
 ```
 
+## Configure
+Need to include an API key from OpenAI and export it as an env varaible:
+export OPENAI_API_KEY="sk-..."
+
 ## Run
 
 ```bash
