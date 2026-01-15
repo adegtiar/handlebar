@@ -12,6 +12,7 @@ from rich.syntax import Syntax
 from core.prompt import build_prompt
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
+from llm import get_client, LLMError
 from ui.questionnaire import ask_questions
 
 
@@ -87,39 +88,58 @@ class Terminal:
         self.state = State.GENERATING
 
     def show_generating(self):
-        """Show generating state (placeholder for LLM integration)."""
+        """Show generating state and call LLM."""
         self.clear()
         self.console.print()
-        self.console.print(
-            Panel(
-                "[bold yellow]Generating your playa names...[/bold yellow]\n\n"
-                "[dim]LLM client not yet implemented.[/dim]",
-                border_style="yellow",
-            )
-        )
-        self.console.print()
 
-        # Build and display the prompt
+        # Build prompt
         prompt_messages = build_prompt(
             self.qa_transcript, self.style, self.avoid_list or None
         )
 
-        self.console.print("[bold]Prompt that would be sent to LLM:[/bold]\n")
-
-        # Pretty print each message
-        for msg in prompt_messages:
-            self.console.print(f"[bold cyan]{msg['role'].upper()}:[/bold cyan]")
-
-            # Try to parse content as JSON for prettier display
-            try:
-                content_obj = json.loads(msg["content"])
-                content_json = json.dumps(content_obj, indent=2)
-                self.console.print(Syntax(content_json, "json", theme="monokai", word_wrap=True))
-            except (json.JSONDecodeError, TypeError):
-                # Plain text content - display as-is with word wrap
-                self.console.print(msg["content"])
-
+        # Try to call LLM
+        try:
+            client = get_client()
+            self.console.print(
+                Panel(
+                    "[bold yellow]Generating your playa names...[/bold yellow]",
+                    border_style="yellow",
+                )
+            )
             self.console.print()
+
+            response = client.generate(prompt_messages)
+
+            self.console.print("[bold green]LLM Response:[/bold green]\n")
+            # Try to pretty-print JSON response
+            try:
+                response_obj = json.loads(response)
+                response_json = json.dumps(response_obj, indent=2)
+                self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
+            except json.JSONDecodeError:
+                self.console.print(response)
+
+        except LLMError as e:
+            # No API key or API error - show prompt instead
+            self.console.print(
+                Panel(
+                    "[bold yellow]Generating your playa names...[/bold yellow]\n\n"
+                    f"[dim]{e}[/dim]",
+                    border_style="yellow",
+                )
+            )
+            self.console.print()
+            self.console.print("[bold]Prompt that would be sent to LLM:[/bold]\n")
+
+            for msg in prompt_messages:
+                self.console.print(f"[bold cyan]{msg['role'].upper()}:[/bold cyan]")
+                try:
+                    content_obj = json.loads(msg["content"])
+                    content_json = json.dumps(content_obj, indent=2)
+                    self.console.print(Syntax(content_json, "json", theme="monokai", word_wrap=True))
+                except (json.JSONDecodeError, TypeError):
+                    self.console.print(msg["content"])
+                self.console.print()
 
         self.console.print()
         pt_prompt("Press Enter to return to start: ")
