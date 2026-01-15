@@ -12,7 +12,7 @@ class OpenAIClient:
 
     def __init__(
         self,
-        model: str = "gpt-5-nano",
+        model: str = "gpt-5.2",
     ):
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:

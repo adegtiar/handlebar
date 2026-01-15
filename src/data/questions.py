@@ -10,11 +10,11 @@ QUESTIONS = [
         "hint": "e.g., Repair someone's bike light",
     },
     {
-        "question": "What animal energy do you bring?",
-        "hint": "e.g., Curious raccoon, sleepy cat",
+        "question": "If you were an animal/creature hybrid, what two parts would you combine?",
+        "hint": "e.g., Dragon and spider",
     },
     {
-        "question": "If your mood was a weather pattern, what would it be?",
+        "question": "If you were a weather event, which would you be?",
         "hint": "e.g., Warm breeze before a storm",
     },
     {
