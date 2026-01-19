@@ -9,7 +9,7 @@ SYSTEM_PROMPT = """You are a playa name generator for Burning Man participants. 
 
 ## Output Format
 Respond with valid JSON only:
-{"nicknames": ["Name One", "Name Two", ...]}
+{"nicknames": [{"name": "Name One", "explanation": "Brief explanation of how this name connects to the answers"}, ...]}
 
 ## Rules
 - Generate exactly 10 nickname candidates
