@@ -30,7 +30,7 @@ class State(Enum):
 class Terminal:
     """Terminal UI controller managing the application flow."""
 
-    def __init__(self, prefill_answers: Optional[list[str]] = None):
+    def __init__(self, prefill_answers: Optional[dict[str, str]] = None):
         self.console = Console()
         self.state = State.START
         self.style = DEFAULT_STYLE

@@ -2,6 +2,7 @@
 """Entry point for the Playa Nickname Booth."""
 
 import argparse
+import json
 import os
 import sys
 from pathlib import Path
@@ -11,12 +12,12 @@ from dotenv import load_dotenv
 from ui.terminal import Terminal
 
 
-def load_answers(filepath: str) -> list[str]:
-    """Load prefill answers from a text file (one per line)."""
+def load_answers(filepath: str) -> dict[str, str]:
+    """Load prefill answers from a JSON file mapping question_id to answer."""
     path = Path(filepath)
     if not path.exists():
         raise FileNotFoundError(f"Answers file not found: {filepath}")
-    return path.read_text().splitlines()
+    return json.loads(path.read_text())
 
 
 def main():
