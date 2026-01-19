@@ -2,7 +2,11 @@
 """Entry point for the Playa Nickname Booth."""
 
 import argparse
+import os
+import sys
 from pathlib import Path
+
+from dotenv import load_dotenv
 
 from ui.terminal import Terminal
 
@@ -17,6 +21,13 @@ def load_answers(filepath: str) -> list[str]:
 
 def main():
     """Run the Playa Nickname Booth application."""
+    load_dotenv()
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        print("Error: OPENAI_API_KEY not found. Please set it in .env file.")
+        sys.exit(1)
+
     parser = argparse.ArgumentParser(description="Playa Nickname Booth")
     parser.add_argument(
         "-a", "--answers",
