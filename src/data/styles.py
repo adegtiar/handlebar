@@ -21,6 +21,11 @@ STYLES = {
         "description": "Warm, comforting, gentle",
         "prompt_modifier": "Use warm, gentle, and comforting language. Think soft blankets and warm drinks.",
     },
+    "w": {
+        "name": "whimsical",
+        "description": "whimsical, playful, unexpected",
+        "prompt_modifier": "Be whimsical, playful, and unexpected. Embrace weirdness and surprise. Think playa names.",
+    },
 }
 
-DEFAULT_STYLE = "m"
+DEFAULT_STYLE = "w"
