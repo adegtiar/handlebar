@@ -29,7 +29,7 @@ def build_prompt(
     Build OpenAI-compatible messages array.
 
     Args:
-        qa_transcript: List of {"q": question, "a": answer} dicts
+        qa_transcript: List of {"question_id": id, "question": text, "answer": text} dicts
         style_mode: Style key ("m", "y", "c", "z")
         avoid_list: Optional list of nicknames to avoid
 
@@ -42,9 +42,9 @@ def build_prompt(
     user_data = {
         "style": style["prompt_modifier"],
         "answers": {
-            qa["q"]: qa["a"]
+            qa["question"]: qa["answer"]
             for qa in qa_transcript
-            if qa["a"]  # Only include answered questions
+            if qa["answer"]  # Only include answered questions
         },
     }
 

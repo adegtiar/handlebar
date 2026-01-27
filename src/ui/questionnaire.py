@@ -59,7 +59,7 @@ def _prefill_questions(
         console.print(f"[green]A:[/green] {answer or '[dim](skipped)[/dim]'}")
         console.print()
 
-        qa_transcript.append({"q": question_text, "a": answer})
+        qa_transcript.append({"question_id": question_id, "question": question_text, "answer": answer})
 
     return qa_transcript
 
@@ -80,6 +80,7 @@ def _interactive_questions(console: Console, questions: list[dict]) -> list[dict
     console.print()
 
     for i, q in enumerate(questions, 1):
+        question_id = q["question_id"]
         question_text = q["question"]
         hint = q.get("hint", "")
 
@@ -90,7 +91,7 @@ def _interactive_questions(console: Console, questions: list[dict]) -> list[dict
 
         answer = pt_prompt("> ")
 
-        qa_transcript.append({"q": question_text, "a": answer})
+        qa_transcript.append({"question_id": question_id, "question": question_text, "answer": answer})
         console.print()
 
     return qa_transcript

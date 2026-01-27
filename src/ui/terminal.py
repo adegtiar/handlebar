@@ -126,9 +126,13 @@ class Terminal:
 
                 if self.logger:
                     nicknames = response_obj.get("nicknames", [])
+                    logged_transcript = [
+                        {"question_id": qa["question_id"], "answer": qa["answer"]}
+                        for qa in self.qa_transcript
+                    ]
                     self.logger.log_session(
                         style=self.style,
-                        qa_transcript=self.qa_transcript,
+                        qa_transcript=logged_transcript,
                         nicknames=nicknames,
                         llm_response_raw=response,
                     )
