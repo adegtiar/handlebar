@@ -9,6 +9,7 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from session_logging import SessionLogger
 from ui.terminal import Terminal
 
 
@@ -40,7 +41,8 @@ def main():
     if args.answers:
         prefill_answers = load_answers(args.answers)
 
-    terminal = Terminal(prefill_answers=prefill_answers)
+    logger = SessionLogger()
+    terminal = Terminal(prefill_answers=prefill_answers, logger=logger)
     terminal.run()
 
 

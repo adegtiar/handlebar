@@ -4,6 +4,8 @@ import json
 from enum import Enum, auto
 from typing import Optional
 
+from session_logging import SessionLogger
+
 from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
 from rich.panel import Panel
@@ -30,7 +32,11 @@ class State(Enum):
 class Terminal:
     """Terminal UI controller managing the application flow."""
 
-    def __init__(self, prefill_answers: Optional[dict[str, str]] = None):
+    def __init__(
+        self,
+        prefill_answers: Optional[dict[str, str]] = None,
+        logger: Optional[SessionLogger] = None,
+    ):
         self.console = Console()
         self.state = State.START
         self.style = DEFAULT_STYLE
@@ -38,6 +44,7 @@ class Terminal:
         self.avoid_list: list[str] = []
         self.candidates: list[str] = []
         self.prefill_answers = prefill_answers
+        self.logger = logger
 
     def clear(self):
         """Clear the terminal screen."""
@@ -116,6 +123,15 @@ class Terminal:
                 response_obj = json.loads(response)
                 response_json = json.dumps(response_obj, indent=2)
                 self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
+
+                if self.logger:
+                    nicknames = response_obj.get("nicknames", [])
+                    self.logger.log_session(
+                        style=self.style,
+                        qa_transcript=self.qa_transcript,
+                        nicknames=nicknames,
+                        llm_response_raw=response,
+                    )
             except json.JSONDecodeError:
                 self.console.print(response)
 
