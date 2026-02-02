@@ -2,6 +2,11 @@
 
 QUESTIONS = [
     {
+        "question_id": "real_name",
+        "question": "Optional: what's your real name or a seed name to start?",
+        "hint": "e.g., James Dean...",
+    },
+    {
         "question_id": "vibe",
         "question": "What's your vibe right now? Describe it like a movie scene.",
         "hint": "e.g., Foggy neon boardwalk at 3am...",
