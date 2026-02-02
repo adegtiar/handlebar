@@ -18,8 +18,13 @@ QUESTIONS = [
     },
     {
         "question_id": "animal",
-        "question": "If you were an animal/creature hybrid, what two parts would you combine?",
-        "hint": "e.g., Dragon and spider",
+        "question": "What animal do you become at 2am?",
+        "hint": "e.g., Sloth",
+    },
+    {
+        "question_id": "talent",
+        "question": "What's something you're inexplicably good at that has no practical use?",
+        "hint": "e.g., I can juggle 10 balls",
     },
     {
         "question_id": "weather",
@@ -28,7 +33,7 @@ QUESTIONS = [
     },
     {
         "question_id": "story",
-        "question": "Optional: Tell a 10-second story that happened recently",
+        "question": "Describe your most legendary night in a short sentence",
         "hint": "e.g., I found a lost cat and brought it to the shelter",
     },
 ]
