@@ -46,13 +46,8 @@ class Terminal:
         self.prefill_answers = prefill_answers
         self.logger = logger
 
-    def clear(self):
-        """Clear the terminal screen."""
-        self.console.clear()
-
     def show_start_screen(self):
         """Display the start screen."""
-        self.clear()
         self.console.print()
         self.console.print(
             Panel(
@@ -68,7 +63,6 @@ class Terminal:
 
     def show_style_selector(self):
         """Display style selection options."""
-        self.clear()
         self.console.print()
         self.console.print("[bold]Choose your vibe:[/bold]\n")
 
@@ -88,7 +82,6 @@ class Terminal:
 
     def run_questionnaire(self):
         """Run the questionnaire flow."""
-        self.clear()
         self.qa_transcript = ask_questions(
             self.console, QUESTIONS, prefill_answers=self.prefill_answers
         )
@@ -96,7 +89,6 @@ class Terminal:
 
     def show_generating(self):
         """Show generating state and call LLM."""
-        self.clear()
         self.console.print()
 
         # Build prompt
