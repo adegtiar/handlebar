@@ -158,12 +158,11 @@ class Terminal:
                     self.console.print(msg["content"])
                 self.console.print()
 
-        self.console.print()
-        pt_prompt("Press Enter to continue: ")
-
         if self.candidates:
             self.state = State.FEEDBACK
         else:
+            self.console.print()
+            pt_prompt("Press Enter to continue: ")
             self.state = State.START
 
     def show_feedback(self):

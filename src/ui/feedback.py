@@ -25,7 +25,7 @@ def ask_feedback(
     console.print()
     console.print(
         Panel(
-            "[bold]Help us improve! Press Enter to skip.[/bold]",
+            "[bold]Help us improve![/bold]",
             title="Quick Feedback (optional)",
             border_style="cyan",
         )
