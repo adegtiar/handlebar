@@ -85,3 +85,35 @@ class SessionLogger:
                 return cursor.lastrowid
         except Exception:
             return None
+
+    def dump_sessions(self, session_id: Optional[int] = None) -> str:
+        """Return sessions as pretty-printed JSON.
+
+        Args:
+            session_id: If provided, dump only that session. Otherwise dump all.
+
+        Returns:
+            Pretty-printed JSON string.
+        """
+        with sqlite3.connect(self.db_path) as conn:
+            conn.row_factory = sqlite3.Row
+            if session_id is not None:
+                rows = conn.execute(
+                    "SELECT * FROM sessions WHERE session_id = ?", (session_id,)
+                ).fetchall()
+            else:
+                rows = conn.execute(
+                    "SELECT * FROM sessions ORDER BY session_id"
+                ).fetchall()
+
+        sessions = []
+        for row in rows:
+            session = dict(row)
+            session["qa_transcript"] = json.loads(session["qa_transcript"])
+            session["nicknames"] = json.loads(session["nicknames"])
+            del session["llm_response_raw"]
+            sessions.append(session)
+
+        return json.dumps(sessions, indent=2)
+
+
