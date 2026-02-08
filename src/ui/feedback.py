@@ -32,8 +32,8 @@ def ask_feedback(
     )
     console.print()
 
-    opt_in = pt_prompt("Give quick feedback? [y/N]: ")
-    if opt_in.strip().lower() != "y":
+    opt_in = pt_prompt("Give quick feedback? [Y/n]: ")
+    if opt_in.strip().lower() == "n":
         return None
 
     console.print()
