@@ -6,18 +6,18 @@ from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
 from rich.panel import Panel
 
+from data.questions import QUESTIONS
+
 
 def ask_feedback(
     console: Console,
     nicknames: list[str],
-    questions_asked: list[dict],
 ) -> Optional[dict]:
     """Show optional feedback form after nickname generation.
 
     Args:
         console: Rich console for output.
         nicknames: List of generated nickname strings.
-        questions_asked: Q/A transcript dicts with 'question_id', 'question', 'answer'.
 
     Returns:
         Dict with feedback fields, or None if the user skipped.
@@ -40,14 +40,11 @@ def ask_feedback(
 
     favorite_name = _ask_favorite_name(console, nicknames)
 
-    # Only show answered questions for helpful/unhelpful selectors
-    answered = [qa for qa in questions_asked if qa.get("answer")]
-
     helpful = _ask_multi_select_questions(
-        console, answered, "Which questions were most helpful?"
+        console, QUESTIONS, "Which questions were most helpful?"
     )
     unhelpful = _ask_multi_select_questions(
-        console, answered, "Which questions were least helpful?"
+        console, QUESTIONS, "Which questions were least helpful?"
     )
 
     console.print("[bold cyan]What would make this questionnaire more helpful? Feel free to add your own questions.[/bold cyan]")

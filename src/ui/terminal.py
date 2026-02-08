@@ -171,7 +171,6 @@ class Terminal:
         feedback_data = ask_feedback(
             self.console,
             nicknames=self.candidates,
-            questions_asked=self.qa_transcript,
         )
 
         if feedback_data is not None and self.logger and self.current_session_id:
