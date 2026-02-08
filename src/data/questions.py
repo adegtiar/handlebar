@@ -33,7 +33,7 @@ QUESTIONS = [
     },
     {
         "question_id": "story",
-        "question": "Describe your most legendary night in a short sentence",
-        "hint": "e.g., I found a lost cat and brought it to the shelter",
+        "question": "Describe your most legendary night in 3 words",
+        "hint": "e.g., lost cat found",
     },
 ]

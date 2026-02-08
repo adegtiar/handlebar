@@ -15,6 +15,7 @@ from core.prompt import build_prompt
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
 from llm import get_client, LLMError
+from ui.feedback import ask_feedback
 from ui.questionnaire import ask_questions
 
 
@@ -25,6 +26,7 @@ class State(Enum):
     STYLE_SELECT = auto()
     QUESTIONNAIRE = auto()
     GENERATING = auto()
+    FEEDBACK = auto()
     DISPLAY = auto()
     BANNER = auto()
 
@@ -43,6 +45,7 @@ class Terminal:
         self.qa_transcript: list[dict] = []
         self.avoid_list: list[str] = []
         self.candidates: list[str] = []
+        self.current_session_id: Optional[int] = None
         self.prefill_answers = prefill_answers
         self.logger = logger
 
@@ -116,13 +119,15 @@ class Terminal:
                 response_json = json.dumps(response_obj, indent=2)
                 self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
 
+                nicknames = response_obj.get("nicknames", [])
+                self.candidates = nicknames
+
                 if self.logger:
-                    nicknames = response_obj.get("nicknames", [])
                     logged_transcript = [
                         {"question_id": qa["question_id"], "answer": qa["answer"]}
                         for qa in self.qa_transcript
                     ]
-                    self.logger.log_session(
+                    self.current_session_id = self.logger.log_session(
                         style=self.style,
                         qa_transcript=logged_transcript,
                         nicknames=nicknames,
@@ -154,7 +159,27 @@ class Terminal:
                 self.console.print()
 
         self.console.print()
-        pt_prompt("Press Enter to return to start: ")
+        pt_prompt("Press Enter to continue: ")
+
+        if self.candidates:
+            self.state = State.FEEDBACK
+        else:
+            self.state = State.START
+
+    def show_feedback(self):
+        """Show optional feedback form after nickname generation."""
+        feedback_data = ask_feedback(
+            self.console,
+            nicknames=self.candidates,
+            questions_asked=self.qa_transcript,
+        )
+
+        if feedback_data is not None and self.logger and self.current_session_id:
+            self.logger.log_feedback(
+                session_id=self.current_session_id,
+                **feedback_data,
+            )
+
         self.state = State.START
 
     def run(self):
@@ -173,6 +198,8 @@ class Terminal:
                     self.run_questionnaire()
                 elif self.state == State.GENERATING:
                     self.show_generating()
+                elif self.state == State.FEEDBACK:
+                    self.show_feedback()
                 else:
                     self.state = State.START
         except KeyboardInterrupt:
