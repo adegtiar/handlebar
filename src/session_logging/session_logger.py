@@ -1,60 +1,98 @@
 """Session logger for tracking nickname generation sessions."""
 
 import json
+import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+from sqlalchemy import (
+    JSON,
+    Column,
+    Engine,
+    ForeignKey,
+    Integer,
+    MetaData,
+    String,
+    Table,
+    Text,
+    create_engine,
+    event,
+    select,
+)
+
+metadata = MetaData()
+
+sessions_table = Table(
+    "sessions",
+    metadata,
+    Column("session_id", Integer, primary_key=True, autoincrement=True),
+    Column("process_id", String, nullable=False),
+    Column("timestamp", String, nullable=False),
+    Column("style", String, nullable=False),
+    Column("qa_transcript", JSON, nullable=False),
+    Column("nicknames", JSON, nullable=False),
+    Column("llm_response_raw", Text, nullable=False),
+)
+
+feedback_table = Table(
+    "feedback",
+    metadata,
+    Column("feedback_id", Integer, primary_key=True, autoincrement=True),
+    Column(
+        "session_id",
+        Integer,
+        ForeignKey("sessions.session_id"),
+        nullable=False,
+    ),
+    Column("timestamp", String, nullable=False),
+    Column("favorite_name", String),
+    Column("helpful_questions", JSON),
+    Column("unhelpful_questions", JSON),
+    Column("suggested_questions", String),
+    Column("self_suggested_name", String),
+)
+
+
+@event.listens_for(Engine, "connect")
+def _set_sqlite_wal(dbapi_connection, connection_record):
+    if isinstance(dbapi_connection, sqlite3.Connection):
+        cursor = dbapi_connection.cursor()
+        cursor.execute("PRAGMA journal_mode=WAL")
+        cursor.close()
+
 
 class SessionLogger:
-    """Logs nickname generation sessions to SQLite database."""
+    """Logs nickname generation sessions to a database."""
 
     def __init__(self, db_path: Optional[Path] = None):
         """Initialize the session logger.
 
         Args:
             db_path: Path to the SQLite database. Defaults to ./logs/sessions.db
-                     relative to the project root.
+                     relative to the project root. Ignored when DATABASE_URL is set.
         """
         if db_path is None:
             db_path = Path(__file__).parent.parent.parent / "logs" / "sessions.db"
         self.db_path = db_path
         self.process_id = str(uuid.uuid4())
+        self.engine = self._create_engine(db_path)
         self._init_db()
 
+    @staticmethod
+    def _create_engine(db_path: Path) -> Engine:
+        database_url = os.environ.get("DATABASE_URL")
+        if database_url:
+            return create_engine(database_url)
+        db_path.parent.mkdir(parents=True, exist_ok=True)
+        return create_engine(f"sqlite:///{db_path}")
+
     def _init_db(self) -> None:
-        """Create the database and sessions table if they don't exist."""
+        """Create tables if they don't exist."""
         try:
-            self.db_path.parent.mkdir(parents=True, exist_ok=True)
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("PRAGMA journal_mode=WAL")
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS sessions (
-                        session_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        process_id TEXT NOT NULL,
-                        timestamp TEXT NOT NULL,
-                        style TEXT NOT NULL,
-                        qa_transcript TEXT NOT NULL,
-                        nicknames TEXT NOT NULL,
-                        llm_response_raw TEXT NOT NULL
-                    )
-                """)
-                conn.execute("""
-                    CREATE TABLE IF NOT EXISTS feedback (
-                        feedback_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                        session_id INTEGER NOT NULL,
-                        timestamp TEXT NOT NULL,
-                        favorite_name TEXT,
-                        helpful_questions TEXT,
-                        unhelpful_questions TEXT,
-                        suggested_questions TEXT,
-                        self_suggested_name TEXT,
-                        FOREIGN KEY (session_id) REFERENCES sessions(session_id)
-                    )
-                """)
-                conn.commit()
+            metadata.create_all(self.engine)
         except Exception:
             pass
 
@@ -78,24 +116,19 @@ class SessionLogger:
         """
         try:
             timestamp = datetime.now(timezone.utc).isoformat()
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute(
-                    """
-                    INSERT INTO sessions (
-                        process_id, timestamp, style, qa_transcript, nicknames, llm_response_raw
-                    ) VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        self.process_id,
-                        timestamp,
-                        style,
-                        json.dumps(qa_transcript),
-                        json.dumps(nicknames),
-                        llm_response_raw,
-                    ),
+            with self.engine.connect() as conn:
+                result = conn.execute(
+                    sessions_table.insert().values(
+                        process_id=self.process_id,
+                        timestamp=timestamp,
+                        style=style,
+                        qa_transcript=qa_transcript,
+                        nicknames=nicknames,
+                        llm_response_raw=llm_response_raw,
+                    )
                 )
                 conn.commit()
-                return cursor.lastrowid
+                return result.inserted_primary_key[0]
         except Exception:
             return None
 
@@ -115,27 +148,20 @@ class SessionLogger:
         """
         try:
             timestamp = datetime.now(timezone.utc).isoformat()
-            with sqlite3.connect(self.db_path) as conn:
-                cursor = conn.execute(
-                    """
-                    INSERT INTO feedback (
-                        session_id, timestamp, favorite_name,
-                        helpful_questions, unhelpful_questions,
-                        suggested_questions, self_suggested_name
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?)
-                    """,
-                    (
-                        session_id,
-                        timestamp,
-                        favorite_name,
-                        json.dumps(helpful_questions),
-                        json.dumps(unhelpful_questions),
-                        suggested_questions,
-                        self_suggested_name,
-                    ),
+            with self.engine.connect() as conn:
+                result = conn.execute(
+                    feedback_table.insert().values(
+                        session_id=session_id,
+                        timestamp=timestamp,
+                        favorite_name=favorite_name,
+                        helpful_questions=helpful_questions,
+                        unhelpful_questions=unhelpful_questions,
+                        suggested_questions=suggested_questions,
+                        self_suggested_name=self_suggested_name,
+                    )
                 )
                 conn.commit()
-                return cursor.lastrowid
+                return result.inserted_primary_key[0]
         except Exception:
             return None
 
@@ -148,47 +174,68 @@ class SessionLogger:
         Returns:
             Pretty-printed JSON string.
         """
-        with sqlite3.connect(self.db_path) as conn:
-            conn.row_factory = sqlite3.Row
-            query = """
-                SELECT s.*, f.feedback_id, f.favorite_name,
-                       f.helpful_questions, f.unhelpful_questions,
-                       f.suggested_questions, f.self_suggested_name
-                FROM sessions s
-                LEFT JOIN feedback f ON s.session_id = f.session_id
-            """
-            if session_id is not None:
-                rows = conn.execute(
-                    query + " WHERE s.session_id = ?", (session_id,)
-                ).fetchall()
-            else:
-                rows = conn.execute(
-                    query + " ORDER BY s.session_id"
-                ).fetchall()
+        query = (
+            select(
+                sessions_table,
+                feedback_table.c.feedback_id,
+                feedback_table.c.favorite_name,
+                feedback_table.c.helpful_questions,
+                feedback_table.c.unhelpful_questions,
+                feedback_table.c.suggested_questions,
+                feedback_table.c.self_suggested_name,
+            )
+            .select_from(
+                sessions_table.outerjoin(
+                    feedback_table,
+                    sessions_table.c.session_id == feedback_table.c.session_id,
+                )
+            )
+        )
+
+        if session_id is not None:
+            query = query.where(sessions_table.c.session_id == session_id)
+        else:
+            query = query.order_by(sessions_table.c.session_id)
+
+        with self.engine.connect() as conn:
+            rows = conn.execute(query).fetchall()
 
         sessions = []
         for row in rows:
-            row_dict = dict(row)
+            row_map = row._mapping
+            qa = row_map["qa_transcript"]
+            nicks = row_map["nicknames"]
+            # Handle both raw JSON strings (legacy SQLite data) and
+            # already-deserialized objects (SQLAlchemy JSON type)
+            if isinstance(qa, str):
+                qa = json.loads(qa)
+            if isinstance(nicks, str):
+                nicks = json.loads(nicks)
+
             session = {
-                "session_id": row_dict["session_id"],
-                "process_id": row_dict["process_id"],
-                "timestamp": row_dict["timestamp"],
-                "style": row_dict["style"],
-                "qa_transcript": json.loads(row_dict["qa_transcript"]),
-                "nicknames": json.loads(row_dict["nicknames"]),
+                "session_id": row_map["session_id"],
+                "process_id": row_map["process_id"],
+                "timestamp": row_map["timestamp"],
+                "style": row_map["style"],
+                "qa_transcript": qa,
+                "nicknames": nicks,
             }
-            if row_dict["feedback_id"] is not None:
+            if row_map["feedback_id"] is not None:
+                helpful = row_map["helpful_questions"]
+                unhelpful = row_map["unhelpful_questions"]
+                if isinstance(helpful, str):
+                    helpful = json.loads(helpful)
+                if isinstance(unhelpful, str):
+                    unhelpful = json.loads(unhelpful)
                 session["feedback"] = {
-                    "favorite_name": row_dict["favorite_name"],
-                    "helpful_questions": json.loads(row_dict["helpful_questions"]),
-                    "unhelpful_questions": json.loads(row_dict["unhelpful_questions"]),
-                    "suggested_questions": row_dict["suggested_questions"],
-                    "self_suggested_name": row_dict["self_suggested_name"],
+                    "favorite_name": row_map["favorite_name"],
+                    "helpful_questions": helpful,
+                    "unhelpful_questions": unhelpful,
+                    "suggested_questions": row_map["suggested_questions"],
+                    "self_suggested_name": row_map["self_suggested_name"],
                 }
             else:
                 session["feedback"] = None
             sessions.append(session)
 
         return json.dumps(sessions, indent=2)
-
-
