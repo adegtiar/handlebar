@@ -1,8 +1,11 @@
 """Terminal UI controller for the Playa Nickname Booth."""
 
 import json
+import logging
 from enum import Enum, auto
 from typing import Optional
+
+log = logging.getLogger(__name__)
 
 from session_logging import SessionLogger
 
@@ -188,6 +191,7 @@ class Terminal:
 
         try:
             while True:
+                log.info("[%s] State starting: %s", self.current_session_id or "N/A", self.state.name)
                 if self.state == State.START:
                     self.show_start_screen()
                 elif self.state == State.STYLE_SELECT:
@@ -200,5 +204,7 @@ class Terminal:
                     self.show_feedback()
                 else:
                     self.state = State.START
+                log.info("[%s] State finished: %s", self.current_session_id or "N/A", self.state.name)
         except KeyboardInterrupt:
+            log.info("Interrupted by user")
             self.console.print("\n[dim]Goodbye![/dim]")
