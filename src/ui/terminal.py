@@ -130,6 +130,7 @@ class Terminal:
                         {"question_id": qa["question_id"], "answer": qa["answer"]}
                         for qa in self.qa_transcript
                     ]
+
                     self.current_session_id = self.logger.log_session(
                         style=self.style,
                         qa_transcript=logged_transcript,
@@ -192,19 +193,20 @@ class Terminal:
         try:
             while True:
                 log.info("[%s] State starting: %s", self.current_session_id or "N/A", self.state.name)
-                if self.state == State.START:
+                state = self.state
+                if state == State.START:
                     self.show_start_screen()
-                elif self.state == State.STYLE_SELECT:
+                elif state == State.STYLE_SELECT:
                     self.show_style_selector()
-                elif self.state == State.QUESTIONNAIRE:
+                elif state == State.QUESTIONNAIRE:
                     self.run_questionnaire()
-                elif self.state == State.GENERATING:
+                elif state == State.GENERATING:
                     self.show_generating()
-                elif self.state == State.FEEDBACK:
+                elif state == State.FEEDBACK:
                     self.show_feedback()
                 else:
-                    self.state = State.START
-                log.info("[%s] State finished: %s", self.current_session_id or "N/A", self.state.name)
+                    state = State.START
+                log.info("[%s] State finished: %s", self.current_session_id or "N/A", state.name)
         except KeyboardInterrupt:
             log.info("Interrupted by user")
             self.console.print("\n[dim]Goodbye![/dim]")
