@@ -38,3 +38,7 @@ outputType = "webview"
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[deployment]
+deploymentTarget = "vm"
+run = ["./scripts/start_server.sh", "5000"]
