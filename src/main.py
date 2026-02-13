@@ -3,6 +3,7 @@
 
 import argparse
 import json
+import logging
 import os
 import sys
 from pathlib import Path
@@ -21,8 +22,22 @@ def load_answers(filepath: str) -> dict[str, str]:
     return json.loads(path.read_text())
 
 
+def setup_logging():
+    """Configure file-based logging for error visibility in Replit console."""
+    log_dir = Path(__file__).resolve().parent.parent / "logs"
+    log_dir.mkdir(exist_ok=True)
+    logging.basicConfig(
+        level=logging.WARNING,
+        format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+        handlers=[logging.FileHandler(log_dir / "app.log")],
+    )
+
+
 def main():
     """Run the Playa Nickname Booth application."""
+    setup_logging()
+    log = logging.getLogger(__name__)
+
     load_dotenv()
 
     api_key = os.getenv("OPENAI_API_KEY")
@@ -41,9 +56,13 @@ def main():
     if args.answers:
         prefill_answers = load_answers(args.answers)
 
-    logger = SessionLogger()
-    terminal = Terminal(prefill_answers=prefill_answers, logger=logger)
-    terminal.run()
+    session_logger = SessionLogger()
+    terminal = Terminal(prefill_answers=prefill_answers, logger=session_logger)
+    try:
+        terminal.run()
+    except Exception:
+        log.exception("Terminal crashed")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
