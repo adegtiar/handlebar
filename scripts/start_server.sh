@@ -1,3 +1,5 @@
+#!/bin/bash
+
 PORT="${1:-8080}"
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$DIR/logs"
