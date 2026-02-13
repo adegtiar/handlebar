@@ -49,7 +49,7 @@ Tests are in `tests/` and use pytest. They test data structure validity, questio
 ### OpenAI API
 - **Purpose**: Nickname generation via chat completions
 - **Model**: `gpt-5.2`
-- **Auth**: `OPENAI_API_KEY` environment variable (required)
+- **Auth**: `OPENAI_API_KEY` environment variable (required). Do not make this optional by removing the check at startup.
 - **SDK**: `openai` Python package
 
 ### Python Libraries
