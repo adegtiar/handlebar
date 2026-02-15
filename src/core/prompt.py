@@ -16,7 +16,7 @@ Respond with valid JSON only:
 {"nicknames": ["Name One", "Nametwo", ...]}
 
 ## Rules
-- Generate exactly 20 nickname candidates
+- Generate exactly 10 nickname candidates
 - Each nickname: 1-2 words, Title Case
 - Length: 3-28 characters total
 - Allowed characters: letters, apostrophes, hyphens
