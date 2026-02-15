@@ -1,12 +1,15 @@
 """Session logger for tracking nickname generation sessions."""
 
 import json
+import logging
 import os
 import sqlite3
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
+
+log = logging.getLogger(__name__)
 
 from sqlalchemy import (
     JSON,
@@ -78,6 +81,12 @@ class SessionLogger:
             db_path = Path(__file__).parent.parent.parent / "logs" / "sessions.db"
         self.db_path = db_path
         self.process_id = str(uuid.uuid4())
+        database_url = os.environ.get("DATABASE_URL")
+        log.info(
+            "SessionLogger init: db_path=%s, DATABASE_URL=%s",
+            db_path,
+            "set" if database_url else "not set",
+        )
         self.engine = self._create_engine(db_path)
         self._init_db()
 
@@ -94,7 +103,7 @@ class SessionLogger:
         try:
             metadata.create_all(self.engine)
         except Exception:
-            pass
+            log.exception("Failed to create database tables")
 
     def log_session(
         self,
@@ -130,6 +139,7 @@ class SessionLogger:
                 conn.commit()
                 return result.inserted_primary_key[0]
         except Exception:
+            log.exception("Failed to log session")
             return None
 
     def log_feedback(
@@ -163,6 +173,7 @@ class SessionLogger:
                 conn.commit()
                 return result.inserted_primary_key[0]
         except Exception:
+            log.exception("Failed to log feedback for session_id=%s", session_id)
             return None
 
     def dump_sessions(self, session_id: Optional[int] = None) -> str:

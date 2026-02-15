@@ -137,6 +137,10 @@ class Terminal:
                         nicknames=nicknames,
                         llm_response_raw=response,
                     )
+                    if self.current_session_id is None:
+                        log.error("log_session returned None — session was NOT saved")
+                    else:
+                        log.info("Session logged with id=%s", self.current_session_id)
             except json.JSONDecodeError:
                 self.console.print(response)
 
