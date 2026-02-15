@@ -165,10 +165,10 @@ class Terminal:
                     for name in nicknames:
                         self.console.print(Align.center(make_gradient_text(name, GRADIENT_NEON, bold=True)))
                     self.console.print()
-
-                # Debug JSON output
-                self.console.print(Text("debug: raw LLM response", style=STYLE_DIM))
-                self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
+                else:
+                    # Debug JSON output
+                    self.console.print(Text("debug: raw LLM response", style=STYLE_DIM))
+                    self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
 
                 if self.logger:
                     logged_transcript = [
