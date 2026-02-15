@@ -9,10 +9,12 @@ log = logging.getLogger(__name__)
 
 from session_logging import SessionLogger
 
+import pyfiglet
 from prompt_toolkit import prompt as pt_prompt
+from rich.align import Align
 from rich.console import Console
-from rich.panel import Panel
 from rich.syntax import Syntax
+from rich.text import Text
 
 from core.prompt import build_prompt
 from data.questions import QUESTIONS
@@ -20,6 +22,20 @@ from data.styles import DEFAULT_STYLE, STYLES
 from llm import get_client, LLMError
 from ui.feedback import ask_feedback
 from ui.questionnaire import ask_questions
+from ui.theme import (
+    FIGLET_FONT_TITLE,
+    FIGLET_FONT_TITLE_NARROW,
+    GRADIENT_FIRE,
+    GRADIENT_NEON,
+    GRADIENT_SUNSET,
+    STYLE_DIM,
+    STYLE_ERROR,
+    STYLE_KEY_BRACKET,
+    STYLE_KEY_DESC,
+    STYLE_KEY_NAME,
+    make_gradient_text,
+    styled_rule,
+)
 
 
 class State(Enum):
@@ -54,35 +70,55 @@ class Terminal:
 
     def show_start_screen(self):
         """Display the start screen."""
+        self.console.clear()
         self.console.print()
-        self.console.print(
-            Panel(
-                "[bold magenta]PLAYA NICKNAME BOOTH[/bold magenta]\n\n"
-                "[white]Get your playa name![/white]",
-                border_style="magenta",
-                padding=(1, 4),
-            )
-        )
+
+        # Pick font based on terminal width
+        width = self.console.width
+        font = FIGLET_FONT_TITLE_NARROW if width < 70 else FIGLET_FONT_TITLE
+
+        # Render ASCII art title
+        title_art = pyfiglet.figlet_format("PLAYA NAME", font=font)
+        booth_art = pyfiglet.figlet_format("BOOTH", font=font)
+
+        self.console.print(styled_rule())
         self.console.print()
-        pt_prompt("Press Enter to begin: ")
+        self.console.print(Align.center(make_gradient_text(title_art.rstrip("\n"), GRADIENT_SUNSET, bold=True)))
+        self.console.print(Align.center(make_gradient_text(booth_art.rstrip("\n"), GRADIENT_FIRE, bold=True)))
+        self.console.print()
+        self.console.print(Align.center(make_gradient_text("~ get your playa name ~", GRADIENT_NEON)))
+        self.console.print()
+        self.console.print(styled_rule())
+        self.console.print()
+
+        self.console.print(Align.center(Text("press ENTER to begin", style=STYLE_DIM)))
+        self.console.print()
+        pt_prompt("")
         self.state = State.STYLE_SELECT
 
     def show_style_selector(self):
         """Display style selection options."""
         self.console.print()
-        self.console.print("[bold]Choose your vibe:[/bold]\n")
+        self.console.print(styled_rule("choose your vibe"))
+        self.console.print()
 
         for key, style in STYLES.items():
-            self.console.print(
-                f"  [bold cyan]\\[{key}][/bold cyan] {style['name'].title()} - [dim]{style['description']}[/dim]"
-            )
+            line = Text()
+            line.append("  [", style=STYLE_KEY_BRACKET)
+            line.append(key, style=STYLE_KEY_BRACKET)
+            line.append("] ", style=STYLE_KEY_BRACKET)
+            line.append(style["name"].title(), style=STYLE_KEY_NAME)
+            line.append(f" - {style['description']}", style=STYLE_KEY_DESC)
+            self.console.print(line)
 
+        self.console.print()
+        self.console.print(styled_rule())
         self.console.print()
         while True:
             choice = pt_prompt(f"Style [{DEFAULT_STYLE}]: ") or DEFAULT_STYLE
             if choice in STYLES:
                 break
-            self.console.print(f"[red]Invalid choice. Use: {', '.join(STYLES.keys())}[/red]")
+            self.console.print(Text(f"Invalid choice. Use: {', '.join(STYLES.keys())}", style=STYLE_ERROR))
         self.style = choice
         self.state = State.QUESTIONNAIRE
 
@@ -105,25 +141,34 @@ class Terminal:
         # Try to call LLM
         try:
             client = get_client()
+            self.console.print(styled_rule("conjuring your name from the dust"))
+            self.console.print()
             self.console.print(
-                Panel(
-                    "[bold yellow]Generating your playa names...[/bold yellow]",
-                    border_style="yellow",
-                )
+                Align.center(make_gradient_text("Generating your playa names...", GRADIENT_FIRE, bold=True))
             )
             self.console.print()
 
             response = client.generate(prompt_messages)
 
-            self.console.print("[bold green]LLM Response:[/bold green]\n")
             # Try to pretty-print JSON response
             try:
                 response_obj = json.loads(response)
                 response_json = json.dumps(response_obj, indent=2)
-                self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
 
                 nicknames = response_obj.get("nicknames", [])
                 self.candidates = nicknames
+
+                # Display nicknames with neon gradient
+                if nicknames:
+                    self.console.print(styled_rule("your playa names"))
+                    self.console.print()
+                    for name in nicknames:
+                        self.console.print(Align.center(make_gradient_text(name, GRADIENT_NEON, bold=True)))
+                    self.console.print()
+
+                # Debug JSON output
+                self.console.print(Text("debug: raw LLM response", style=STYLE_DIM))
+                self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
 
                 if self.logger:
                     logged_transcript = [
@@ -146,18 +191,19 @@ class Terminal:
 
         except LLMError as e:
             # No API key or API error - show prompt instead
+            self.console.print(styled_rule("conjuring your name from the dust"))
+            self.console.print()
             self.console.print(
-                Panel(
-                    "[bold yellow]Generating your playa names...[/bold yellow]\n\n"
-                    f"[dim]{e}[/dim]",
-                    border_style="yellow",
-                )
+                Align.center(make_gradient_text("Generating your playa names...", GRADIENT_FIRE, bold=True))
             )
             self.console.print()
-            self.console.print("[bold]Prompt that would be sent to LLM:[/bold]\n")
+            self.console.print(Text(str(e), style=STYLE_DIM))
+            self.console.print()
+            self.console.print(Text("Prompt that would be sent to LLM:", style="bold white"))
+            self.console.print()
 
             for msg in prompt_messages:
-                self.console.print(f"[bold cyan]{msg['role'].upper()}:[/bold cyan]")
+                self.console.print(Text(msg["role"].upper() + ":", style=STYLE_KEY_BRACKET))
                 try:
                     content_obj = json.loads(msg["content"])
                     content_json = json.dumps(content_obj, indent=2)
@@ -213,4 +259,6 @@ class Terminal:
                 log.info("[%s] State finished: %s", self.current_session_id or "N/A", state.name)
         except KeyboardInterrupt:
             log.info("Interrupted by user")
-            self.console.print("\n[dim]Goodbye![/dim]")
+            self.console.print()
+            self.console.print(Align.center(make_gradient_text("See you on the playa!", GRADIENT_SUNSET, bold=True)))
+            self.console.print()

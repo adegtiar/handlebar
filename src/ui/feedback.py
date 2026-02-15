@@ -3,10 +3,20 @@
 from typing import Optional
 
 from prompt_toolkit import prompt as pt_prompt
+from rich.align import Align
 from rich.console import Console
-from rich.panel import Panel
+from rich.text import Text
 
 from data.questions import QUESTIONS
+from ui.theme import (
+    GRADIENT_NEON,
+    STYLE_DIM,
+    STYLE_ERROR,
+    STYLE_KEY_BRACKET,
+    STYLE_QUESTION,
+    make_gradient_text,
+    styled_rule,
+)
 
 
 def ask_feedback(
@@ -23,13 +33,9 @@ def ask_feedback(
         Dict with feedback fields, or None if the user skipped.
     """
     console.print()
-    console.print(
-        Panel(
-            "[bold]Help us improve![/bold]",
-            title="Quick Feedback (optional)",
-            border_style="cyan",
-        )
-    )
+    console.print(styled_rule("quick feedback (optional)"))
+    console.print()
+    console.print(Text("Help us improve!", style="bold white"))
     console.print()
 
     opt_in = pt_prompt("Give quick feedback? [Y/n]: ")
@@ -47,17 +53,18 @@ def ask_feedback(
         console, QUESTIONS, "Which questions were least helpful?"
     )
 
-    console.print("[bold cyan]What would make this questionnaire more helpful? Feel free to add your own questions.[/bold cyan]")
-    console.print("[dim]Enter to skip[/dim]")
+    console.print(Text("What would make this questionnaire more helpful? Feel free to add your own questions.", style=STYLE_QUESTION))
+    console.print(Text("Enter to skip", style=STYLE_DIM))
     suggested_questions = pt_prompt("> ")
     console.print()
 
-    console.print("[bold cyan]What do you think is a good playa name for you?[/bold cyan]")
-    console.print("[dim]Enter to skip[/dim]")
+    console.print(Text("What do you think is a good playa name for you?", style=STYLE_QUESTION))
+    console.print(Text("Enter to skip", style=STYLE_DIM))
     self_suggested_name = pt_prompt("> ")
     console.print()
 
-    console.print("[green]Thanks for the feedback![/green]")
+    console.print(Align.center(make_gradient_text("Thanks for the feedback!", GRADIENT_NEON, bold=True)))
+    console.print()
 
     return {
         "favorite_name": favorite_name,
@@ -70,12 +77,20 @@ def ask_feedback(
 
 def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
     """Single-select for favorite nickname."""
-    console.print("[bold cyan]Which name is your favorite?[/bold cyan]")
-    console.print("[dim]Enter to skip[/dim]")
+    console.print(Text("Which name is your favorite?", style=STYLE_QUESTION))
+    console.print(Text("Enter to skip", style=STYLE_DIM))
     console.print()
-    console.print("  [bold cyan]\\[0][/bold cyan] No favorite")
+
+    line_zero = Text()
+    line_zero.append("  [0]", style=STYLE_KEY_BRACKET)
+    line_zero.append(" No favorite", style=STYLE_DIM)
+    console.print(line_zero)
+
     for i, name in enumerate(nicknames, 1):
-        console.print(f"  [bold cyan]\\[{i}][/bold cyan] {name}")
+        line = Text()
+        line.append(f"  [{i}]", style=STYLE_KEY_BRACKET)
+        line.append(f" {name}")
+        console.print(line)
     console.print()
 
     while True:
@@ -91,7 +106,7 @@ def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
                 return nicknames[choice - 1]
         except ValueError:
             pass
-        console.print(f"[red]Enter a number 0-{len(nicknames)}[/red]")
+        console.print(Text(f"Enter a number 0-{len(nicknames)}", style=STYLE_ERROR))
 
 
 def _ask_multi_select_questions(
@@ -103,11 +118,14 @@ def _ask_multi_select_questions(
     if not questions:
         return []
 
-    console.print(f"[bold cyan]{label}[/bold cyan]")
-    console.print("[dim]Comma-separated numbers, or Enter to skip[/dim]")
+    console.print(Text(label, style=STYLE_QUESTION))
+    console.print(Text("Comma-separated numbers, or Enter to skip", style=STYLE_DIM))
     console.print()
     for i, qa in enumerate(questions, 1):
-        console.print(f"  [bold cyan]\\[{i}][/bold cyan] {qa['question']}")
+        line = Text()
+        line.append(f"  [{i}]", style=STYLE_KEY_BRACKET)
+        line.append(f" {qa['question']}")
+        console.print(line)
     console.print()
 
     raw = pt_prompt("Enter numbers (e.g. 1,3): ")

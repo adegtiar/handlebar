@@ -65,11 +65,12 @@ def test_run_questionnaire_transitions_to_generating():
     terminal.console = Console(record=True)
     terminal.state = State.QUESTIONNAIRE
 
-    with patch("ui.terminal.ask_questions", return_value=[{"q": "Q?", "a": "A"}]):
+    transcript = [{"question_id": "q1", "question": "Q?", "answer": "A"}]
+    with patch("ui.terminal.ask_questions", return_value=transcript):
         terminal.run_questionnaire()
 
     assert terminal.state == State.GENERATING
-    assert terminal.qa_transcript == [{"q": "Q?", "a": "A"}]
+    assert terminal.qa_transcript == transcript
 
 
 def test_show_generating_transitions_to_start():
@@ -77,7 +78,7 @@ def test_show_generating_transitions_to_start():
     terminal = Terminal()
     terminal.console = Console(record=True)
     terminal.state = State.GENERATING
-    terminal.qa_transcript = [{"q": "Q?", "a": "A"}]
+    terminal.qa_transcript = [{"question_id": "q1", "question": "Q?", "answer": "A"}]
 
     with patch("ui.terminal.pt_prompt", return_value=""):
         terminal.show_generating()

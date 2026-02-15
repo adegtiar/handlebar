@@ -4,7 +4,17 @@ from typing import Optional
 
 from prompt_toolkit import prompt as pt_prompt
 from rich.console import Console
-from rich.panel import Panel
+from rich.text import Text
+
+from ui.theme import (
+    GRADIENT_NEON,
+    STYLE_DIM,
+    STYLE_HINT,
+    STYLE_QUESTION,
+    STYLE_SUCCESS,
+    make_gradient_text,
+    styled_rule,
+)
 
 
 def ask_questions(
@@ -40,13 +50,9 @@ def _prefill_questions(
     qa_transcript = []
 
     console.print()
-    console.print(
-        Panel(
-            "[bold]Using prefilled answers[/bold]",
-            title="Questionnaire",
-            border_style="cyan",
-        )
-    )
+    console.print(styled_rule("prefilled answers"))
+    console.print()
+    console.print(Text("Using prefilled answers", style="bold white"))
     console.print()
 
     for i, q in enumerate(questions):
@@ -55,12 +61,20 @@ def _prefill_questions(
         # Look up answer by question_id
         answer = prefill_answers.get(question_id, "")
 
-        console.print(f"[bold cyan]Q{i + 1}:[/bold cyan] {question_text}")
-        console.print(f"[green]A:[/green] {answer or '[dim](skipped)[/dim]'}")
+        label = Text()
+        label.append(f"Q{i + 1}: ", style=STYLE_SUCCESS)
+        label.append(question_text, style=STYLE_QUESTION)
+        console.print(label)
+
+        if answer:
+            console.print(Text(f"A: {answer}", style=STYLE_SUCCESS))
+        else:
+            console.print(Text("A: (skipped)", style=STYLE_DIM))
         console.print()
 
         qa_transcript.append({"question_id": question_id, "question": question_text, "answer": answer})
 
+    console.print(styled_rule())
     return qa_transcript
 
 
@@ -69,14 +83,10 @@ def _interactive_questions(console: Console, questions: list[dict]) -> list[dict
     qa_transcript = []
 
     console.print()
-    console.print(
-        Panel(
-            "[bold]Answer a few questions to help generate your playa name.[/bold]\n"
-            "[dim]Press Enter to skip any question.[/dim]",
-            title="Questionnaire",
-            border_style="cyan",
-        )
-    )
+    console.print(styled_rule("questionnaire"))
+    console.print()
+    console.print(Text("Answer a few questions to help generate your playa name.", style="bold white"))
+    console.print(Text("Press Enter to skip any question.", style=STYLE_DIM))
     console.print()
 
     for i, q in enumerate(questions, 1):
@@ -84,14 +94,16 @@ def _interactive_questions(console: Console, questions: list[dict]) -> list[dict
         question_text = q["question"]
         hint = q.get("hint", "")
 
-        console.print(f"[bold cyan]Question {i}/{len(questions)}[/bold cyan]")
-        console.print(f"[white]{question_text}[/white]")
+        progress = make_gradient_text(f"[{i}/{len(questions)}]", GRADIENT_NEON, bold=True)
+        console.print(progress)
+        console.print(Text(question_text, style=STYLE_QUESTION))
         if hint:
-            console.print(f"[dim italic]{hint}[/dim italic]")
+            console.print(Text(hint, style=STYLE_HINT))
 
         answer = pt_prompt("> ")
 
         qa_transcript.append({"question_id": question_id, "question": question_text, "answer": answer})
         console.print()
 
+    console.print(styled_rule())
     return qa_transcript
