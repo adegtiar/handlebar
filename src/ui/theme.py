@@ -91,7 +91,7 @@ def _lerp_color(c1: tuple[int, int, int], c2: tuple[int, int, int], t: float) ->
     )
 
 
-def _gradient_color_at(gradient: list[tuple[int, int, int]], t: float) -> tuple[int, int, int]:
+def gradient_color_at(gradient: list[tuple[int, int, int]], t: float) -> tuple[int, int, int]:
     """Get the interpolated color at position *t* (0..1) along a gradient."""
     if t <= 0:
         return gradient[0]
@@ -137,7 +137,7 @@ def make_gradient_text(
 
     for i, ch in enumerate(all_chars):
         if i in vis_positions:
-            r, g, b = _gradient_color_at(gradient, vis_positions[i])
+            r, g, b = gradient_color_at(gradient, vis_positions[i])
             style = f"rgb({r},{g},{b})"
             if bold:
                 style = f"bold {style}"

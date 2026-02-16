@@ -33,6 +33,7 @@ from ui.theme import (
     STYLE_KEY_BRACKET,
     STYLE_KEY_DESC,
     STYLE_KEY_NAME,
+    gradient_color_at,
     make_gradient_text,
     styled_rule,
 )
@@ -162,8 +163,10 @@ class Terminal:
                 if nicknames:
                     self.console.print(styled_rule("your playa names"))
                     self.console.print()
-                    for name in nicknames:
-                        self.console.print(Align.center(make_gradient_text(name, GRADIENT_NEON, bold=True)))
+                    for i, name in enumerate(nicknames):
+                        t = i / max(len(nicknames) - 1, 1)
+                        r, g, b = gradient_color_at(GRADIENT_NEON, t)
+                        self.console.print(Align.center(Text(name, style=f"bold rgb({r},{g},{b})")))
                     self.console.print()
                 else:
                     # Debug JSON output
