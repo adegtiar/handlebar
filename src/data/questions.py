@@ -3,7 +3,7 @@
 QUESTIONS = [
     {
         "question_id": "real_name",
-        "question": "Optional: what's your real name or a seed name to start?",
+        "question": "Optional: what's your real name or an alias, for inspiration?",
         "hint": "e.g., James Dean...",
     },
     {

@@ -16,7 +16,7 @@ from rich.console import Console
 from rich.syntax import Syntax
 from rich.text import Text
 
-from core.prompt import build_prompt
+from llm.prompt import build_prompt
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
 from llm import get_client, LLMError
