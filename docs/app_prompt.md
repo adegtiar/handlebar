@@ -24,38 +24,27 @@
   Project structure
 ```
   src/
-    main.py              # argparse entry point, loads .env, wires up
-  Terminal + SessionLogger
+    main.py                # Entry point, argparse, .env, wires Terminal + SessionLogger
     ui/
-      terminal.py        # State machine controller (State enum, Terminal
-  class with run() loop)
-      questionnaire.py   # Interactive Q&A collection (also supports prefill
-   mode via --answers JSON file)
-      feedback.py        # Optional post-generation feedback form (favorite
-  name, helpful/unhelpful questions, suggestions)
-      theme.py           # Centralized color palette, gradient definitions,
-  utility functions
+      terminal.py          # State machine controller (State enum, run() loop)
+      questionnaire.py     # Interactive Q&A (supports prefill via --answers)
+      feedback.py          # Post-generation feedback form
+      theme.py             # Color palette, gradients, styling utilities
     data/
-      questions.py       # Question bank (list of dicts with question_id,
-  question, hint)
-      styles.py          # Style mode definitions (dict mapping key →
-  name/description/prompt_modifier)
+      questions.py         # Question bank (question_id, question, hint)
+      styles.py            # Style mode definitions (key → name/description/modifier)
     llm/
-      __init__.py        # Factory: get_client() returns OpenAI or Ollama
-  based on LLM_PROVIDER env var
-      base.py            # Protocol class LLMClient with generate(messages)
-  -> str, plus LLMError empt.py          # SYSTEM_PROMPT constant + build_prompt() that
-  assembles messages array
-      openai_client.py   # OpenAI implementation
-      ollama_client.py   # Ollama implementation (uses OpenAI SDK pointed at
-   localhost:11434/v1)
+      __init__.py          # Factory: get_client() per LLM_PROVIDER env var
+      base.py              # LLMClient Protocol + LLMError
+      prompt.py            # SYSTEM_PROMPT constant + build_prompt()
+      openai_client.py     # OpenAI implementation
+      ollama_client.py     # Ollama implementation (OpenAI SDK → localhost:11434)
     session_logging/
       __init__.py
-      session_logger.py  # SQLAlchemy tables (sessions + feedback),
-  SessionLogger class
-      __main__.py        # CLI dump tool: python -m session_logging
-  [session_id]
+      session_logger.py    # SQLAlchemy tables + SessionLogger class
+      __main__.py          # CLI: python -m session_logging [session_id]
 ```
+
   Visual design
 
   Desert sunset + neon playa aesthetic:
