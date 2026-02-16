@@ -92,6 +92,11 @@ class Terminal:
         self.console.print(styled_rule())
         self.console.print()
 
+        num_q = len(QUESTIONS)
+        self.console.print(Align.center(Text(f"Welcome! We'll ask you {num_q} quick questions, then propose a new playa name.", style=STYLE_DIM)))
+        self.console.print(Align.center(Text("Skip any question by pressing ENTER.", style=STYLE_DIM)))
+        self.console.print()
+
         self.console.print(Align.center(Text("press ENTER to begin", style=STYLE_DIM)))
         self.console.print()
         pt_prompt("")
