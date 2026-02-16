@@ -22,7 +22,7 @@
   - Entry point: src/main.py, run directly as ./src/main.py
 
   Project structure
-
+```
   src/
     main.py              # argparse entry point, loads .env, wires up
   Terminal + SessionLogger
@@ -55,7 +55,7 @@
   SessionLogger class
       __main__.py        # CLI dump tool: python -m session_logging
   [session_id]
-
+```
   Visual design
 
   Desert sunset + neon playa aesthetic:
