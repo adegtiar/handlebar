@@ -118,6 +118,8 @@ class Terminal:
             self.console.print(line)
 
         self.console.print()
+        self.console.print(Align.center(Text("type one letter to pick your style", style=STYLE_DIM)))
+        self.console.print()
         self.console.print(styled_rule())
         self.console.print()
         while True:
@@ -159,22 +161,13 @@ class Terminal:
             # Try to pretty-print JSON response
             try:
                 response_obj = json.loads(response)
-                response_json = json.dumps(response_obj, indent=2)
 
                 nicknames = response_obj.get("nicknames", [])
                 self.candidates = nicknames
 
-                # Display nicknames with neon gradient
-                if nicknames:
-                    self.console.print(styled_rule("your playa names"))
-                    self.console.print()
-                    for i, name in enumerate(nicknames):
-                        t = i / max(len(nicknames) - 1, 1)
-                        r, g, b = gradient_color_at(GRADIENT_NEON, t)
-                        self.console.print(Align.center(Text(name, style=f"bold rgb({r},{g},{b})")))
-                    self.console.print()
-                else:
+                if not nicknames:
                     # Debug JSON output
+                    response_json = json.dumps(response_obj, indent=2)
                     self.console.print(Text("debug: raw LLM response", style=STYLE_DIM))
                     self.console.print(Syntax(response_json, "json", theme="monokai", word_wrap=True))
 
@@ -221,11 +214,32 @@ class Terminal:
                 self.console.print()
 
         if self.candidates:
-            self.state = State.FEEDBACK
+            self.state = State.DISPLAY
         else:
             self.console.print()
             pt_prompt("Press Enter to continue: ")
             self.state = State.START
+
+    def show_display(self):
+        """Display generated names and offer reroll or continue."""
+        self.console.print(styled_rule("your playa names"))
+        self.console.print()
+        for i, name in enumerate(self.candidates):
+            t = i / max(len(self.candidates) - 1, 1)
+            r, g, b = gradient_color_at(GRADIENT_NEON, t)
+            self.console.print(Align.center(Text(name, style=f"bold rgb({r},{g},{b})")))
+        self.console.print()
+
+        self.console.print(Align.center(Text("press ENTER to continue, or 'r' to reroll", style=STYLE_DIM)))
+        self.console.print()
+        choice = pt_prompt("").strip().lower()
+
+        if choice == "r":
+            self.avoid_list.extend(self.candidates)
+            self.candidates = []
+            self.state = State.GENERATING
+        else:
+            self.state = State.FEEDBACK
 
     def show_feedback(self):
         """Show optional feedback form after nickname generation."""
@@ -260,6 +274,8 @@ class Terminal:
                     self.run_questionnaire()
                 elif state == State.GENERATING:
                     self.show_generating()
+                elif state == State.DISPLAY:
+                    self.show_display()
                 elif state == State.FEEDBACK:
                     self.show_feedback()
                 else:
