@@ -40,10 +40,12 @@ def main():
 
     load_dotenv()
 
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        print("Error: OPENAI_API_KEY not found. Please set it in .env file.")
-        sys.exit(1)
+    provider = os.getenv("LLM_PROVIDER", "openai").lower()
+    if provider != "ollama":
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            print("Error: OPENAI_API_KEY not found. Please set it in .env file.")
+            sys.exit(1)
 
     parser = argparse.ArgumentParser(description="Playa Nickname Booth")
     parser.add_argument(
