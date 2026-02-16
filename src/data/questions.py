@@ -12,6 +12,11 @@ QUESTIONS = [
         "hint": "e.g., Foggy neon boardwalk at 3am...",
     },
     {
+        "question_id": "joy",
+        "question": "What brings you joy?",
+        "hint": "e.g., playing music, dancing, making art, etc.",
+    },
+    {
         "question_id": "side_quest",
         "question": "If you had a side-quest tonight, what would it be?",
         "hint": "e.g., Repair someone's bike light",
@@ -26,11 +31,11 @@ QUESTIONS = [
         "question": "What's something you're inexplicably good at that has no practical use?",
         "hint": "e.g., I can juggle 10 balls",
     },
-    {
-        "question_id": "weather",
-        "question": "If you were a weather event, which would you be?",
-        "hint": "e.g., Warm breeze before a storm",
-    },
+    # {
+    #     "question_id": "weather",
+    #     "question": "If you were a weather event, which would you be?",
+    #     "hint": "e.g., Warm breeze before a storm",
+    # },
     {
         "question_id": "story",
         "question": "Describe your most legendary night in 3 words",
