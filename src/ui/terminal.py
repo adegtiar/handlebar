@@ -2,6 +2,9 @@
 
 import json
 import logging
+import sys
+import termios
+import tty
 from enum import Enum, auto
 from typing import Optional
 
@@ -68,6 +71,17 @@ class Terminal:
         self.current_session_id: Optional[int] = None
         self.prefill_answers = prefill_answers
         self.logger = logger
+
+    def _read_key(self) -> str:
+        """Read a single keypress without waiting for Enter."""
+        fd = sys.stdin.fileno()
+        old_settings = termios.tcgetattr(fd)
+        try:
+            tty.setraw(fd)
+            ch = sys.stdin.read(1)
+        finally:
+            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
+        return ch
 
     def show_start_screen(self):
         """Display the start screen."""
@@ -232,7 +246,7 @@ class Terminal:
 
         self.console.print(Align.center(Text("press ENTER to continue, or 'r' to reroll", style=STYLE_DIM)))
         self.console.print()
-        choice = pt_prompt("").strip().lower()
+        choice = self._read_key().lower()
 
         if choice == "r":
             self.avoid_list.extend(self.candidates)
