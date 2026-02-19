@@ -94,7 +94,7 @@ class SessionLogger:
     def _create_engine(db_path: Path) -> Engine:
         database_url = os.environ.get("DATABASE_URL")
         if database_url:
-            return create_engine(database_url)
+            return create_engine(database_url, pool_pre_ping=True)
         db_path.parent.mkdir(parents=True, exist_ok=True)
         return create_engine(f"sqlite:///{db_path}")
 
