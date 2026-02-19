@@ -118,7 +118,7 @@ class Terminal:
             self.console.print(line)
 
         self.console.print()
-        self.console.print(Align.center(Text("type one letter to pick your style", style=STYLE_DIM)))
+        self.console.print(Align.center(Text("type one letter to pick your style and press enter", style=STYLE_DIM)))
         self.console.print()
         self.console.print(styled_rule())
         self.console.print()
