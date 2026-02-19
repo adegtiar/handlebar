@@ -4,12 +4,12 @@ STYLES = {
     "m": {
         "name": "mixed",
         "description": "A blend of all styles - playful, mystical, and grounded",
-        "prompt_modifier": "Mix playful, mythical, and cozy elements. Be creative and unexpected.",
+        "prompt_modifier": "Mix playful, mystical, and cozy elements. Be creative and unexpected.",
     },
     "y": {
-        "name": "mythic",
-        "description": "Epic, legendary, larger-than-life",
-        "prompt_modifier": "Use mythical, legendary, and epic language. Think ancient heroes and cosmic forces.",
+        "name": "mystic",
+        "description": "Spiritual, cosmic, woo-woo vibes",
+        "prompt_modifier": "Channel spiritual and cosmic energy. Think third-eye openers, astral wanderers, crystal healers, and sacred geometry. Names should feel like they belong to someone who reads your aura at sunrise.",
     },
     "c": {
         "name": "chaotic",
