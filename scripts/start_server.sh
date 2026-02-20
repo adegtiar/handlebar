@@ -5,4 +5,4 @@ DIR="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$DIR/logs"
 touch "$DIR/logs/app.log"
 tail -f "$DIR/logs/app.log" &
-ttyd -W -p "$PORT" -t fontSize=32 "$DIR/src/main.py"
+ttyd -W -p "$PORT" -t fontSize=28 "$DIR/src/main.py"
