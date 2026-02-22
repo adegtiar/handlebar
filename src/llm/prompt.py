@@ -14,6 +14,7 @@ answers.
 ## Output Format
 Respond with valid JSON only:
 {"nicknames": ["Name One", "Nametwo", ...]}
+Don't wrap it in a code block.
 
 ## Rules
 - Generate exactly 7 nickname candidates
@@ -23,7 +24,7 @@ Respond with valid JSON only:
 - Be creative, playful, and evocative
 - If a real name is given, use it as a base for some suggestions. You can use parts of it, especially the front, or something that rhymes with it
 - No more that 1/4 are alliterations
-- Make the majority of the names be single words rather than compound words.
+- IMPORTANT: Make the majority of the names be single rather than compound words.
 
 ## What Makes a Great Playa Name
 - Captures a contradiction, tension, or unexpected quality
