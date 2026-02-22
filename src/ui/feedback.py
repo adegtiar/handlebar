@@ -75,7 +75,7 @@ def ask_feedback(
     }
 
 
-def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
+def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[list[str]]:
     """Multi-select for favorite nickname(s)."""
     console.print(Text("Which name(s) are your favorite?", style=STYLE_QUESTION))
     console.print(Text("Comma-separated numbers, or Enter to skip", style=STYLE_DIM))
@@ -101,7 +101,7 @@ def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
     indices = _parse_comma_separated_ints(raw, len(nicknames))
     if not indices:
         return None
-    return ", ".join(nicknames[i - 1] for i in indices)
+    return [nicknames[i - 1] for i in indices]
 
 
 def _ask_multi_select_questions(

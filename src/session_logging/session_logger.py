@@ -52,7 +52,7 @@ feedback_table = Table(
     ),
     Column("timestamp", String, nullable=False),
     Column("favorite_name", String),
-    Column("favorite_names", String),
+    Column("favorite_names", JSON),
     Column("helpful_questions", JSON),
     Column("unhelpful_questions", JSON),
     Column("suggested_questions", String),
@@ -146,7 +146,7 @@ class SessionLogger:
     def log_feedback(
         self,
         session_id: int,
-        favorite_names: Optional[str],
+        favorite_names: Optional[list[str]],
         helpful_questions: list[str],
         unhelpful_questions: list[str],
         suggested_questions: str,
@@ -239,8 +239,11 @@ class SessionLogger:
                     helpful = json.loads(helpful)
                 if isinstance(unhelpful, str):
                     unhelpful = json.loads(unhelpful)
+                fav = row_map["favorite_names"]
+                if isinstance(fav, str):
+                    fav = json.loads(fav)
                 session["feedback"] = {
-                    "favorite_names": row_map["favorite_names"],
+                    "favorite_names": fav,
                     "helpful_questions": helpful,
                     "unhelpful_questions": unhelpful,
                     "suggested_questions": row_map["suggested_questions"],
