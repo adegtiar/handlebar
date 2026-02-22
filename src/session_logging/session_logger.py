@@ -52,6 +52,7 @@ feedback_table = Table(
     ),
     Column("timestamp", String, nullable=False),
     Column("favorite_name", String),
+    Column("favorite_names", String),
     Column("helpful_questions", JSON),
     Column("unhelpful_questions", JSON),
     Column("suggested_questions", String),
@@ -145,7 +146,7 @@ class SessionLogger:
     def log_feedback(
         self,
         session_id: int,
-        favorite_name: Optional[str],
+        favorite_names: Optional[str],
         helpful_questions: list[str],
         unhelpful_questions: list[str],
         suggested_questions: str,
@@ -163,7 +164,7 @@ class SessionLogger:
                     feedback_table.insert().values(
                         session_id=session_id,
                         timestamp=timestamp,
-                        favorite_name=favorite_name,
+                        favorite_names=favorite_names,
                         helpful_questions=helpful_questions,
                         unhelpful_questions=unhelpful_questions,
                         suggested_questions=suggested_questions,
@@ -189,7 +190,7 @@ class SessionLogger:
             select(
                 sessions_table,
                 feedback_table.c.feedback_id,
-                feedback_table.c.favorite_name,
+                feedback_table.c.favorite_names,
                 feedback_table.c.helpful_questions,
                 feedback_table.c.unhelpful_questions,
                 feedback_table.c.suggested_questions,
@@ -239,7 +240,7 @@ class SessionLogger:
                 if isinstance(unhelpful, str):
                     unhelpful = json.loads(unhelpful)
                 session["feedback"] = {
-                    "favorite_name": row_map["favorite_name"],
+                    "favorite_names": row_map["favorite_names"],
                     "helpful_questions": helpful,
                     "unhelpful_questions": unhelpful,
                     "suggested_questions": row_map["suggested_questions"],

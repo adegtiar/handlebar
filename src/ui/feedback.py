@@ -67,7 +67,7 @@ def ask_feedback(
     console.print()
 
     return {
-        "favorite_name": favorite_name,
+        "favorite_names": favorite_name,
         "helpful_questions": helpful,
         "unhelpful_questions": unhelpful,
         "suggested_questions": suggested_questions,
@@ -76,9 +76,9 @@ def ask_feedback(
 
 
 def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
-    """Single-select for favorite nickname."""
-    console.print(Text("Which name is your favorite?", style=STYLE_QUESTION))
-    console.print(Text("Enter to skip", style=STYLE_DIM))
+    """Multi-select for favorite nickname(s)."""
+    console.print(Text("Which name(s) are your favorite?", style=STYLE_QUESTION))
+    console.print(Text("Comma-separated numbers, or Enter to skip", style=STYLE_DIM))
     console.print()
 
     line_zero = Text()
@@ -93,20 +93,15 @@ def _ask_favorite_name(console: Console, nicknames: list[str]) -> Optional[str]:
         console.print(line)
     console.print()
 
-    while True:
-        raw = pt_prompt("Enter number [0]: ")
-        if not raw.strip():
-            return None
-        try:
-            choice = int(raw.strip())
-            if choice == 0:
-                return None
-            if 1 <= choice <= len(nicknames):
-                console.print()
-                return nicknames[choice - 1]
-        except ValueError:
-            pass
-        console.print(Text(f"Enter a number 0-{len(nicknames)}", style=STYLE_ERROR))
+    raw = pt_prompt("Enter numbers (e.g. 1,3): ")
+    console.print()
+
+    if any(p.strip() == "0" for p in raw.split(",")):
+        return None
+    indices = _parse_comma_separated_ints(raw, len(nicknames))
+    if not indices:
+        return None
+    return ", ".join(nicknames[i - 1] for i in indices)
 
 
 def _ask_multi_select_questions(
