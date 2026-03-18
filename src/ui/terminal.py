@@ -88,12 +88,8 @@ class Terminal:
         self.console.clear()
         self.console.print()
 
-        # Pick font based on terminal width
-        width = self.console.width
-        font = FIGLET_FONT_TITLE_NARROW if width < 70 else FIGLET_FONT_TITLE
-
         # Render ASCII art title
-        title_art = pyfiglet.figlet_format("HANDLEBAR", font=font)
+        title_art = pyfiglet.figlet_format("H A N D L E B A R", font=FIGLET_FONT_TITLE, width=200)
 
         self.console.print(styled_rule())
         self.console.print()
