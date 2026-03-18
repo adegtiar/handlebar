@@ -93,13 +93,11 @@ class Terminal:
         font = FIGLET_FONT_TITLE_NARROW if width < 70 else FIGLET_FONT_TITLE
 
         # Render ASCII art title
-        title_art = pyfiglet.figlet_format("PLAYA NAME", font=font)
-        booth_art = pyfiglet.figlet_format("BOOTH", font=font)
+        title_art = pyfiglet.figlet_format("HANDLEBAR", font=font)
 
         self.console.print(styled_rule())
         self.console.print()
         self.console.print(Align.center(make_gradient_text(title_art.rstrip("\n"), GRADIENT_SUNSET, bold=True)))
-        self.console.print(Align.center(make_gradient_text(booth_art.rstrip("\n"), GRADIENT_FIRE, bold=True)))
         self.console.print()
         self.console.print(Align.center(make_gradient_text("~ get your playa name ~", GRADIENT_NEON)))
         self.console.print()
