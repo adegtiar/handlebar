@@ -2,7 +2,24 @@
 
 Terminal-based playa name generator.
 
-## Install
+## Install for MacOS
+
+## Python version
+This projects requires python >=3.11
+You can use pyenv to manage python versions if you don't have it.
+```bash
+python --version
+brew install pyenv
+pyenv install 3.14
+pyenv global 3.14
+```
+Make sure the pyenv python takes precedent in your .zshrc file.
+
+```bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.zshrc
+echo '[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.zshrc
+echo 'eval "$(pyenv init - zsh)"' >> ~/.zshrc
+```
 
 ```bash
 python3 -m venv .venv
@@ -11,8 +28,10 @@ pip install -e .
 ```
 
 ## Configure
-Need to include an API key from OpenAI and export it as an env varaible:
-export OPENAI_API_KEY="sk-..."
+Need to include an API key from OpenAI and export it as an env variable. This is managed through the .env file.
+cp .env.example .env
+Edit the line for CLAUDE_API_KEY to add your key.
+
 
 ## Run
 
@@ -25,6 +44,17 @@ also simply run:
 ```bash
 ./src/main.py
 ```
+
+## Install ollama for local models
+```bash
+brew install ollama
+brew services start ollama
+ollama pull llama3.2
+ollama list
+```
+
+Then in .env:
+LLM_PROVIDER=ollama
 
 ## Test
 
