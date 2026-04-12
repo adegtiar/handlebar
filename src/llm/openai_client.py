@@ -17,7 +17,11 @@ class OpenAIClient:
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
             raise LLMError("OPENAI_API_KEY environment variable not set")
-        self.client = OpenAI(api_key=api_key)
+        timeout_str = os.environ.get("LLM_TIMEOUT")
+        self.client = OpenAI(
+            api_key=api_key,
+            timeout=float(timeout_str) if timeout_str else None,
+        )
         self.model = model
 
     def generate(self, messages: list[dict]) -> str:

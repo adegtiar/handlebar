@@ -14,7 +14,11 @@ class ClaudeClient:
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise LLMError("ANTHROPIC_API_KEY environment variable not set")
-        self.client = anthropic.Anthropic(api_key=api_key)
+        timeout_str = os.environ.get("LLM_TIMEOUT")
+        self.client = anthropic.Anthropic(
+            api_key=api_key,
+            timeout=float(timeout_str) if timeout_str else None,
+        )
         self.model = model
 
     def generate(self, messages: list[dict]) -> str:

@@ -13,7 +13,11 @@ class OllamaClient:
     def __init__(self):
         base_url = os.environ.get("OLLAMA_HOST", "http://localhost:11434/v1")
         model = os.environ.get("OLLAMA_MODEL", "llama3.2")
-        self.client = OpenAI(base_url=base_url, api_key="ollama")
+        self.client = OpenAI(
+            base_url=base_url,
+            api_key="ollama",
+            # Don't time out Ollama API calls since it's local.
+        )
         self.model = model
 
     def generate(self, messages: list[dict]) -> str:
