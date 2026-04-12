@@ -22,7 +22,7 @@ from rich.text import Text
 from llm.prompt import build_prompt
 from data.questions import QUESTIONS
 from data.styles import DEFAULT_STYLE, STYLES
-from llm import get_client, LLMError
+from llm import get_client, FallbackClient, LLMError
 from ui.feedback import ask_feedback
 from ui.questionnaire import ask_questions
 from ui.theme import (
@@ -163,6 +163,11 @@ class Terminal:
                 Align.center(make_gradient_text("Generating your playa names...", GRADIENT_FIRE, bold=True))
             )
             self.console.print()
+
+            if isinstance(client, FallbackClient):
+                client.on_fallback = lambda: self.console.print(
+                    Align.center(Text("OFFLINE FALLBACK", style="bold red"))
+                )
 
             response = client.generate(prompt_messages)
 

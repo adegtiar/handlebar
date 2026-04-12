@@ -26,14 +26,21 @@ class FallbackClient:
     def __init__(self, primary: LLMClient, backup: LLMClient) -> None:
         self.primary = primary
         self.backup = backup
+        self.used_backup = False
+        self.on_fallback = None
 
     def generate(self, messages: list[dict]) -> str:
+        self.used_backup = False
         try:
             return self.primary.generate(messages)
         except LLMError as primary_err:
             log.warning("Primary LLM failed (%s), falling back to backup", primary_err)
             try:
-                return self.backup.generate(messages)
+                if self.on_fallback:
+                    self.on_fallback()
+                result = self.backup.generate(messages)
+                self.used_backup = True
+                return result
             except LLMError:
                 raise primary_err
 
