@@ -44,6 +44,11 @@ def ask_feedback(
 
     console.print()
 
+    console.print(Text("What question(s) would you suggest we ask?", style=STYLE_QUESTION))
+    console.print(Text("Enter to skip", style=STYLE_DIM))
+    suggested_questions = pt_prompt("> ")
+    console.print()
+
     favorite_name = _ask_favorite_name(console, nicknames)
 
     helpful = _ask_multi_select_questions(
@@ -52,11 +57,6 @@ def ask_feedback(
     unhelpful = _ask_multi_select_questions(
         console, questions_asked or [], "Which questions were least helpful?"
     )
-
-    console.print(Text("What would make this questionnaire more helpful? Feel free to add your own questions.", style=STYLE_QUESTION))
-    console.print(Text("Enter to skip", style=STYLE_DIM))
-    suggested_questions = pt_prompt("> ")
-    console.print()
 
     console.print(Text("What do you think is a good playa name for you?", style=STYLE_QUESTION))
     console.print(Text("Enter to skip", style=STYLE_DIM))
