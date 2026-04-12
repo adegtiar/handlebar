@@ -33,6 +33,18 @@ def setup_logging():
     )
 
 
+def validate_provider_key(provider: str, label: str) -> None:
+    """Ensure the required API key is set for the given provider."""
+    if provider == "claude":
+        if not os.getenv("ANTHROPIC_API_KEY"):
+            print(f"Error: ANTHROPIC_API_KEY not found for {label} provider. Please set it in .env file.")
+            sys.exit(1)
+    elif provider == "openai":
+        if not os.getenv("OPENAI_API_KEY"):
+            print(f"Error: OPENAI_API_KEY not found for {label} provider. Please set it in .env file.")
+            sys.exit(1)
+
+
 def main():
     """Run the Playa Nickname Booth application."""
     setup_logging()
@@ -41,14 +53,13 @@ def main():
     load_dotenv()
 
     provider = os.getenv("LLM_PROVIDER", "openai").lower()
-    if provider == "claude":
-        if not os.getenv("ANTHROPIC_API_KEY"):
-            print("Error: ANTHROPIC_API_KEY not found. Please set it in .env file.")
-            sys.exit(1)
-    elif provider == "openai":
-        if not os.getenv("OPENAI_API_KEY"):
-            print("Error: OPENAI_API_KEY not found. Please set it in .env file.")
-            sys.exit(1)
+    validate_provider_key(provider, "primary")
+
+    backup_provider = os.getenv("LLM_PROVIDER_BACKUP", "").lower()
+    if backup_provider:
+        if backup_provider == provider:
+            log.warning("LLM_PROVIDER_BACKUP is the same as LLM_PROVIDER (%s) — fallback won't help", provider)
+        validate_provider_key(backup_provider, "backup")
 
     parser = argparse.ArgumentParser(description="Playa Nickname Booth")
     parser.add_argument(
