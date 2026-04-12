@@ -49,7 +49,7 @@ QUESTIONS = [
     },
     {
         "question_id": "awkward_date",
-        "question": "What was your mostawkward date?",
+        "question": "What was your most awkward date?",
         "hint": "e.g., I met my date in a coffee shop and...",
     },
 ]
