@@ -1,11 +1,12 @@
 """Question bank for the Playa Nickname Booth."""
 
+REAL_NAME_QUESTION = {
+    "question_id": "real_name",
+    "question": "Optional: what's your real name or an alias, for inspiration?",
+    "hint": "e.g., James Dean...",
+}
+
 QUESTIONS = [
-    {
-        "question_id": "real_name",
-        "question": "Optional: what's your real name or an alias, for inspiration?",
-        "hint": "e.g., James Dean...",
-    },
     {
         "question_id": "vibe",
         "question": "What's your vibe right now? Describe it like a movie scene.",
@@ -31,14 +32,24 @@ QUESTIONS = [
         "question": "What's something you're inexplicably good at that has no practical use?",
         "hint": "e.g., I can juggle 10 balls",
     },
-    # {
-    #     "question_id": "weather",
-    #     "question": "If you were a weather event, which would you be?",
-    #     "hint": "e.g., Warm breeze before a storm",
-    # },
+    {
+        "question_id": "weather",
+        "question": "If you were a weather event, which would you be?",
+        "hint": "e.g., Warm breeze before a storm",
+    },
     {
         "question_id": "story",
         "question": "Describe your most legendary night in 3 words",
         "hint": "e.g., lost cat found",
+    },
+    {
+        "question_id": "perfect_day",
+        "question": "Describe your perfect day",
+        "hint": "e.g., a day at the beach with my friends",
+    },
+    {
+        "question_id": "awkward_date",
+        "question": "What was your mostawkward date?",
+        "hint": "e.g., I met my date in a coffee shop and...",
     },
 ]

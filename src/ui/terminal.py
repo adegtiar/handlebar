@@ -2,6 +2,8 @@
 
 import json
 import logging
+import os
+import random
 import sys
 import termios
 import tty
@@ -20,7 +22,7 @@ from rich.syntax import Syntax
 from rich.text import Text
 
 from llm.prompt import build_prompt
-from data.questions import QUESTIONS
+from data.questions import QUESTIONS, REAL_NAME_QUESTION
 from data.styles import DEFAULT_STYLE, STYLES
 from llm import get_client, FallbackClient, LLMError
 from ui.feedback import ask_feedback
@@ -71,6 +73,9 @@ class Terminal:
         self.current_session_id: Optional[int] = None
         self.prefill_answers = prefill_answers
         self.logger = logger
+        max_q = os.environ.get("MAX_QUESTIONS")
+        total = 1 + len(QUESTIONS)  # real_name + pool
+        self.num_questions = min(int(max_q), total) if max_q else total
 
     def _read_key(self) -> str:
         """Read a single keypress without waiting for Enter."""
@@ -100,8 +105,7 @@ class Terminal:
         self.console.print(styled_rule())
         self.console.print()
 
-        num_q = len(QUESTIONS)
-        self.console.print(Align.center(Text(f"Welcome! We'll ask you {num_q} quick questions, then propose a new playa name.", style=STYLE_DIM)))
+        self.console.print(Align.center(Text(f"Welcome! We'll ask you {self.num_questions} quick questions, then propose a new playa name.", style=STYLE_DIM)))
         self.console.print(Align.center(Text("Skip any question by pressing ENTER.", style=STYLE_DIM)))
         self.console.print()
 
@@ -140,8 +144,13 @@ class Terminal:
 
     def run_questionnaire(self):
         """Run the questionnaire flow."""
+        pool = list(QUESTIONS)
+        if os.environ.get("RANDOMIZE_QUESTIONS"):
+            random.shuffle(pool)
+        pool = pool[: self.num_questions - 1]
+        questions = [REAL_NAME_QUESTION] + pool
         self.qa_transcript = ask_questions(
-            self.console, QUESTIONS, prefill_answers=self.prefill_answers
+            self.console, questions, prefill_answers=self.prefill_answers
         )
         self.state = State.GENERATING
 
