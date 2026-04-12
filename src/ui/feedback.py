@@ -44,12 +44,12 @@ def ask_feedback(
 
     console.print()
 
+    favorite_name = _ask_favorite_name(console, nicknames)
+
     console.print(Text("What question(s) would you suggest we ask?", style=STYLE_QUESTION))
     console.print(Text("Enter to skip", style=STYLE_DIM))
     suggested_questions = pt_prompt("> ")
     console.print()
-
-    favorite_name = _ask_favorite_name(console, nicknames)
 
     helpful = _ask_multi_select_questions(
         console, questions_asked or [], "Which questions were most helpful?"
@@ -63,15 +63,21 @@ def ask_feedback(
     self_suggested_name = pt_prompt("> ")
     console.print()
 
+    console.print(Text("Any other feedback?", style=STYLE_QUESTION))
+    console.print(Text("Enter to skip", style=STYLE_DIM))
+    other_feedback = pt_prompt("> ")
+    console.print()
+
     console.print(Align.center(make_gradient_text("Thanks for the feedback!", GRADIENT_NEON, bold=True)))
     console.print()
 
     return {
         "favorite_names": favorite_name,
+        "suggested_questions": suggested_questions,
         "helpful_questions": helpful,
         "unhelpful_questions": unhelpful,
-        "suggested_questions": suggested_questions,
         "self_suggested_name": self_suggested_name,
+        "other_feedback": other_feedback,
     }
 
 
