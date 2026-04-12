@@ -7,7 +7,6 @@ from rich.align import Align
 from rich.console import Console
 from rich.text import Text
 
-from data.questions import QUESTIONS
 from ui.theme import (
     GRADIENT_NEON,
     STYLE_DIM,
@@ -22,6 +21,7 @@ from ui.theme import (
 def ask_feedback(
     console: Console,
     nicknames: list[str],
+    questions_asked: Optional[list[dict]] = None,
 ) -> Optional[dict]:
     """Show optional feedback form after nickname generation.
 
@@ -47,10 +47,10 @@ def ask_feedback(
     favorite_name = _ask_favorite_name(console, nicknames)
 
     helpful = _ask_multi_select_questions(
-        console, QUESTIONS, "Which questions were most helpful?"
+        console, questions_asked or [], "Which questions were most helpful?"
     )
     unhelpful = _ask_multi_select_questions(
-        console, QUESTIONS, "Which questions were least helpful?"
+        console, questions_asked or [], "Which questions were least helpful?"
     )
 
     console.print(Text("What would make this questionnaire more helpful? Feel free to add your own questions.", style=STYLE_QUESTION))

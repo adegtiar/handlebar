@@ -148,9 +148,9 @@ class Terminal:
         if os.environ.get("RANDOMIZE_QUESTIONS"):
             random.shuffle(pool)
         pool = pool[: self.num_questions - 1]
-        questions = [REAL_NAME_QUESTION] + pool
+        self.questions_asked = [REAL_NAME_QUESTION] + pool
         self.qa_transcript = ask_questions(
-            self.console, questions, prefill_answers=self.prefill_answers
+            self.console, self.questions_asked, prefill_answers=self.prefill_answers
         )
         self.state = State.GENERATING
 
@@ -268,6 +268,7 @@ class Terminal:
         feedback_data = ask_feedback(
             self.console,
             nicknames=self.candidates,
+            questions_asked=getattr(self, "questions_asked", None),
         )
 
         if feedback_data is not None and self.logger and self.current_session_id:
