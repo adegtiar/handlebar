@@ -144,6 +144,19 @@ class Terminal:
 
     def run_questionnaire(self):
         """Run the questionnaire flow."""
+        if os.environ.get("ASK_NUM_QUESTIONS"):
+            max_q = self.num_questions
+            self.console.print()
+            self.console.print(Text(f"How many questions would you like to answer? (1-{max_q})", style=STYLE_DIM))
+            while True:
+                answer = pt_prompt(f"Number of questions [{max_q}]: ") or str(max_q)
+                try:
+                    n = int(answer)
+                    self.num_questions = max(1, min(n, max_q))
+                    break
+                except ValueError:
+                    self.console.print(Text(f"Please enter a number between 1 and {max_q}.", style=STYLE_ERROR))
+
         pool = list(QUESTIONS)
         if os.environ.get("RANDOMIZE_QUESTIONS"):
             random.shuffle(pool)
