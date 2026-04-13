@@ -57,6 +57,7 @@ feedback_table = Table(
     Column("unhelpful_questions", JSON),
     Column("suggested_questions", String),
     Column("self_suggested_name", String),
+    Column("other_feedback", String),
 )
 
 
@@ -151,6 +152,7 @@ class SessionLogger:
         unhelpful_questions: list[str],
         suggested_questions: str,
         self_suggested_name: str,
+        other_feedback: str = "",
     ) -> Optional[int]:
         """Log feedback for a nickname generation session.
 
@@ -169,6 +171,7 @@ class SessionLogger:
                         unhelpful_questions=unhelpful_questions,
                         suggested_questions=suggested_questions,
                         self_suggested_name=self_suggested_name,
+                        other_feedback=other_feedback,
                     )
                 )
                 conn.commit()
@@ -195,6 +198,7 @@ class SessionLogger:
                 feedback_table.c.unhelpful_questions,
                 feedback_table.c.suggested_questions,
                 feedback_table.c.self_suggested_name,
+                feedback_table.c.other_feedback,
             )
             .select_from(
                 sessions_table.outerjoin(
@@ -248,6 +252,7 @@ class SessionLogger:
                     "unhelpful_questions": unhelpful,
                     "suggested_questions": row_map["suggested_questions"],
                     "self_suggested_name": row_map["self_suggested_name"],
+                    "other_feedback": row_map["other_feedback"],
                 }
             else:
                 session["feedback"] = None
