@@ -29,7 +29,6 @@ from ui.feedback import ask_feedback
 from ui.questionnaire import ask_questions
 from ui.theme import (
     FIGLET_FONT_TITLE,
-    FIGLET_FONT_TITLE_NARROW,
     GRADIENT_FIRE,
     GRADIENT_NEON,
     GRADIENT_SUNSET,
@@ -43,6 +42,8 @@ from ui.theme import (
     styled_rule,
 )
 
+def truthy_env_var(var_name: str, default: str = "0") -> bool:
+    return os.environ.get(var_name, default).lower() in ("1", "true", "yes")
 
 class State(Enum):
     """Application states."""
@@ -144,7 +145,8 @@ class Terminal:
 
     def run_questionnaire(self):
         """Run the questionnaire flow."""
-        if os.environ.get("ASK_NUM_QUESTIONS"):
+        # Check if ASK_NUM_QUESTIONS is truthy, default to true.
+        if truthy_env_var("ASK_NUM_QUESTIONS", default="1"):
             max_q = self.num_questions
             self.console.print()
             self.console.print(Text(f"How many questions would you like to answer? (1-{max_q})", style=STYLE_DIM))
@@ -158,7 +160,7 @@ class Terminal:
                     self.console.print(Text(f"Please enter a number between 1 and {max_q}.", style=STYLE_ERROR))
 
         pool = list(QUESTIONS)
-        if os.environ.get("RANDOMIZE_QUESTIONS"):
+        if truthy_env_var("RANDOMIZE_QUESTIONS", default="1"):
             random.shuffle(pool)
         pool = pool[: self.num_questions - 1]
         self.questions_asked = [REAL_NAME_QUESTION] + pool
