@@ -10,7 +10,7 @@ from llm.base import LLMError
 class ClaudeClient:
     """Anthropic Claude messages client."""
 
-    def __init__(self, model: str = "claude-opus-4-6"):
+    def __init__(self, model: str = "claude-opus-4-7"):
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
             raise LLMError("ANTHROPIC_API_KEY environment variable not set")
