@@ -280,6 +280,10 @@ class Terminal:
 
     def show_feedback(self):
         """Show optional feedback form after nickname generation."""
+        if not truthy_env_var("ASK_FEEDBACK"):
+            self.state = State.START
+            return
+
         feedback_data = ask_feedback(
             self.console,
             nicknames=self.candidates,
